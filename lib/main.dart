@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const Trucaralho());
@@ -13,6 +14,7 @@ class Trucaralho extends StatelessWidget {
       title: 'Trucaralho',
       theme: ThemeData(
         primarySwatch: Colors.grey,
+        textTheme: GoogleFonts.nunitoSansTextTheme(),
       ),
       home: const TrucoPage(title: 'Truco'),
     );
@@ -43,17 +45,13 @@ class _TrucoPageState extends State<TrucoPage> {
       appBar: AppBar(
         leading: Icon(Icons.card_giftcard),
         title: Text(widget.title),
-        actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.abc))
-        ],
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.abc))],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Trco ne viado',
-            ),
+            const Text('Trco ne viado'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
