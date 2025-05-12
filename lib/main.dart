@@ -11,9 +11,7 @@ class TrucaralhoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Trucaralho Click Counter',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const ClickCounterPage(),
     );
   }
@@ -28,30 +26,56 @@ class ClickCounterPage extends StatefulWidget {
 
 class _ClickCounterPageState extends State<ClickCounterPage> {
   int _leftCount = 0;
+  int _leftWins = 0;
   int _rightCount = 0;
+  int _rightWins = 0;
+  int up = 1;
 
   void _incrementLeft() {
     setState(() {
-      _leftCount++;
+      _leftCount += up;
+      if (_leftCount >= 12) {
+        _leftCount = 0;
+        _leftWins++;
+      }
     });
   }
 
   void _incrementRight() {
     setState(() {
-      _rightCount++;
+      _rightCount += up;
+
+      if (_rightCount >= 12) {
+        _rightCount = 0;
+        _rightWins++;
+      }
+    });
+  }
+
+  void _changeUp() {
+    setState(() {
+      if (up == 1) {
+        up = 3;
+      } else if (up == 3) {
+        up = 6;
+      } else if (up == 6) {
+        up = 9;
+      } else if (up == 9) {
+        up = 12;
+      } else {
+        up = 1;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Trucaralho Click Counter'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Trucaralho'), centerTitle: true),
       body: Row(
         children: [
           // nos
+          ElevatedButton(onPressed: _changeUp, child: Text('$up')),
           Expanded(
             child: GestureDetector(
               onTap: _incrementLeft,
@@ -70,10 +94,15 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Icon(
-                        Icons.favorite,
-                        size: 48,
-                        color: Colors.blue,
+                      const Icon(Icons.favorite, size: 48, color: Colors.blue),
+
+                      Text(
+                        '$_leftWins',
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
                       ),
                     ],
                   ),
@@ -83,11 +112,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
           ),
 
           // linha
-          const VerticalDivider(
-            width: 1,
-            thickness: 2,
-            color: Colors.black54,
-          ),
+          const VerticalDivider(width: 1, thickness: 2, color: Colors.black54),
 
           // eles
           Expanded(
@@ -108,10 +133,15 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Icon(
-                        Icons.favorite,
-                        size: 48,
-                        color: Colors.red,
+                      const Icon(Icons.favorite, size: 48, color: Colors.red),
+
+                      Text(
+                        '$_rightWins',
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
                       ),
                     ],
                   ),
