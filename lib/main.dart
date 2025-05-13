@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 void main() {
   runApp(const TrucaralhoApp());
@@ -41,6 +42,24 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
     });
   }
 
+  void _decreaseLeft() {
+    setState(() {
+      _leftCount -= up;
+      if (_leftCount < 0) {
+        _leftCount = 0;
+      }
+    });
+  }
+
+  void _decreaseRight() {
+    setState(() {
+      _rightCount -= up;
+      if (_rightCount < 0) {
+        _rightCount = 0;
+      }
+    });
+  }
+
   void _incrementRight() {
     setState(() {
       _rightCount += up;
@@ -68,6 +87,15 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
     });
   }
 
+  void _reset() {
+    setState(() {
+      _leftCount = 0;
+      _rightCount = 0;
+      _leftWins = 0;
+      _rightWins = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,11 +104,13 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
         children: [
           // nos
           ElevatedButton(onPressed: _changeUp, child: Text('$up')),
+          ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
           Expanded(
             child: GestureDetector(
               onTap: _incrementLeft,
+              onLongPress: _decreaseLeft,
               child: Container(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.blue.shade100,
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -95,13 +125,13 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                       ),
                       const SizedBox(height: 8),
                       const Icon(Icons.favorite, size: 48, color: Colors.blue),
-
+                      const SizedBox(height: 8),
                       Text(
                         '$_leftWins',
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: Colors.deepOrangeAccent,
                         ),
                       ),
                     ],
@@ -118,8 +148,9 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
           Expanded(
             child: GestureDetector(
               onTap: _incrementRight,
+              onLongPress: _decreaseRight,
               child: Container(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.shade100,
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -134,13 +165,13 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                       ),
                       const SizedBox(height: 8),
                       const Icon(Icons.favorite, size: 48, color: Colors.red),
-
+                      const SizedBox(height: 8),
                       Text(
                         '$_rightWins',
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          color: Colors.deepOrangeAccent,
                         ),
                       ),
                     ],
@@ -151,6 +182,8 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
           ),
         ],
       ),
+
+      floatingActionButton: SpeedDial(child: Icon(Icons.balance)),
     );
   }
 }
