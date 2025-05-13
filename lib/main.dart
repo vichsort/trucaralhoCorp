@@ -38,24 +38,43 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
       if (_leftCount >= 12) {
         _leftCount = 0;
         _leftWins++;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Nós ganhamos!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
       }
     });
   }
 
   void _decreaseLeft() {
     setState(() {
-      _leftCount -= up;
-      if (_leftCount < 0) {
+      _leftCount--;
+      if (_leftCount <= 0) {
         _leftCount = 0;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Não pode diminuir mais!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
       }
     });
   }
 
   void _decreaseRight() {
     setState(() {
-      _rightCount -= up;
-      if (_rightCount < 0) {
+      _rightCount--;
+      if (_rightCount <= 0) {
         _rightCount = 0;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Não pode diminuir mais!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
       }
     });
   }
@@ -67,6 +86,13 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
       if (_rightCount >= 12) {
         _rightCount = 0;
         _rightWins++;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Eles ganharam!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
       }
     });
   }
@@ -96,6 +122,18 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
     });
   }
 
+  void _resetLeft() {
+    setState(() {
+      _leftCount = 0;
+    });
+  }
+
+  void _resetRight() {
+    setState(() {
+      _rightCount = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,7 +146,8 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
           Expanded(
             child: GestureDetector(
               onTap: _incrementLeft,
-              onLongPress: _decreaseLeft,
+              onDoubleTap: _decreaseLeft,
+              onLongPress: _resetLeft,
               child: Container(
                 color: Colors.blue.shade100,
                 child: Center(
@@ -131,7 +170,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepOrangeAccent,
+                          color: Colors.yellow,
                         ),
                       ),
                     ],
@@ -148,7 +187,8 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
           Expanded(
             child: GestureDetector(
               onTap: _incrementRight,
-              onLongPress: _decreaseRight,
+              onDoubleTap: _decreaseRight,
+              onLongPress: _resetRight,
               child: Container(
                 color: Colors.red.shade100,
                 child: Center(
@@ -171,7 +211,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepOrangeAccent,
+                          color: Colors.yellow,
                         ),
                       ),
                     ],
@@ -183,7 +223,28 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
         ],
       ),
 
-      floatingActionButton: SpeedDial(child: Icon(Icons.balance)),
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        backgroundColor: Colors.blue,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.card_giftcard),
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            label: 'Fodinha',
+            onTap: () {},
+            onLongPress: () => debugPrint('FIRST CHILD LONG PRESS'),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.card_travel_sharp),
+            backgroundColor: Colors.deepOrange,
+            foregroundColor: Colors.white,
+            label: 'BlackJack',
+            onTap: () => debugPrint('SECOND CHILD'),
+          ),
+        ],
+      ),
     );
   }
 }
