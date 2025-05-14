@@ -141,8 +141,6 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
       body: Row(
         children: [
           // nos
-          ElevatedButton(onPressed: _changeUp, child: Text('$up')),
-          ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
           Expanded(
             child: GestureDetector(
               onTap: _incrementLeft,
@@ -162,6 +160,14 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                           color: Colors.blue,
                         ),
                       ),
+                      Text(
+                        "Nós",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       const Icon(Icons.favorite, size: 48, color: Colors.blue),
                       const SizedBox(height: 8),
@@ -170,7 +176,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.yellow,
+                          color: Colors.amber,
                         ),
                       ),
                     ],
@@ -181,7 +187,14 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
           ),
 
           // linha
-          const VerticalDivider(width: 1, thickness: 2, color: Colors.black54),
+          Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(onPressed: _changeUp, child: Text('$up')),
+              ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
+            ],
+          ),
 
           // eles
           Expanded(
@@ -203,6 +216,14 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                           color: Colors.red,
                         ),
                       ),
+                      Text(
+                        "Eles",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red.shade900,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       const Icon(Icons.favorite, size: 48, color: Colors.red),
                       const SizedBox(height: 8),
@@ -211,7 +232,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.yellow,
+                          color: Colors.amber,
                         ),
                       ),
                     ],
