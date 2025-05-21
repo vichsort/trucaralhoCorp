@@ -11,8 +11,10 @@ class TrucaralhoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Trucaralho Click Counter',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      title: 'Trucaralho | Truco',
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(), // standard dark theme
+      themeMode: ThemeMode.system, // device controls theme
       home: const ClickCounterPage(),
     );
   }
@@ -115,7 +117,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
         pedir = "doze!";
       } else if (up == 9) {
         up = 12;
-        pedir = "doze!";
+        pedir = "truco!";
       } else {
         up = 1;
       }
@@ -182,7 +184,13 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
               onDoubleTap: _decreaseLeft,
               onLongPress: _resetLeft,
               child: Container(
-                color: Colors.blue.shade100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
+                  ),
+                ),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -192,7 +200,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: Color(0xFF534d36),
                         ),
                       ),
                       Text(
@@ -200,7 +208,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
+                          color: Color(0xFF534d36),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -247,7 +255,13 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
               onDoubleTap: _decreaseRight,
               onLongPress: _resetRight,
               child: Container(
-                color: Colors.red.shade100,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
+                  ),
+                ),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -257,7 +271,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: const TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          color: Color(0xFF534d36),
                         ),
                       ),
                       Text(
@@ -265,7 +279,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red.shade900,
+                          color: Color(0xFF534d36),
                         ),
                       ),
                       const SizedBox(height: 8),
