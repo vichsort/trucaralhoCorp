@@ -31,6 +31,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
   int _rightCount = 0;
   int _rightWins = 0;
   int up = 1;
+  String pedir = "truco!";
 
   void _incrementLeft() {
     setState(() {
@@ -105,12 +106,16 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
     setState(() {
       if (up == 1) {
         up = 3;
+        pedir = "seis!";
       } else if (up == 3) {
         up = 6;
+        pedir = "nove!";
       } else if (up == 6) {
         up = 9;
+        pedir = "doze!";
       } else if (up == 9) {
         up = 12;
+        pedir = "doze!";
       } else {
         up = 1;
       }
@@ -123,6 +128,26 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
       _rightCount = 0;
       _leftWins = 0;
       _rightWins = 0;
+    });
+  }
+
+  void _correr() {
+    setState(() {
+      if (up == 1) {
+        up = 3;
+        pedir = "seis!";
+      } else if (up == 3) {
+        up = 6;
+        pedir = "nove!";
+      } else if (up == 6) {
+        up = 9;
+        pedir = "doze!";
+      } else if (up == 9) {
+        up = 12;
+        pedir = "doze!";
+      } else {
+        up = 1;
+      }
     });
   }
 
@@ -146,7 +171,7 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
       appBar: AppBar(
         title: const Text('Trucaralho'),
         centerTitle: true,
-        leading: Image.asset('assets/images/trucaralho_icon.png'),
+        leading: Image.asset('images/trucaralho_icon.png'),
       ),
       body: Row(
         children: [
@@ -179,7 +204,11 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Icon(Icons.favorite, size: 48, color: Colors.blue),
+                      const Image(
+                        image: AssetImage('images/paus.png'),
+                        height: 150,
+                        width: 150,
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         '$_leftWins',
@@ -201,7 +230,12 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(onPressed: _changeUp, child: Text('$up')),
+              Text("Valendo: $up"),
+              SizedBox(height: 60),
+              ElevatedButton(onPressed: _changeUp, child: Text('$pedir')),
+              SizedBox(height: 30),
+              ElevatedButton(onPressed: _correr, child: Text("Correr")),
+              SizedBox(height: 30),
               ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
             ],
           ),
@@ -235,7 +269,11 @@ class _ClickCounterPageState extends State<ClickCounterPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Icon(Icons.favorite, size: 48, color: Colors.red),
+                      const Image(
+                        image: AssetImage('images/copas.png'),
+                        height: 150,
+                        width: 150,
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         '$_rightWins',
@@ -413,7 +451,7 @@ class _BlackjackState extends State<Blackjack> {
       appBar: AppBar(
         title: const Text('Blackaralho'),
         centerTitle: true,
-        leading: Image.asset('assets/images/icon.png'),
+        leading: Image.asset('images/icon.png'),
       ),
       body: Row(
         children: [
