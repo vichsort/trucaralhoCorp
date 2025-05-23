@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 20),
             ElevatedButton(
               child: const Text('Jogar Blackjack'),
               onPressed: () {
