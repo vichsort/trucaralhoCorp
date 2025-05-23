@@ -134,6 +134,36 @@ class _BlackJackPageState extends State<BlackJackPage> {
           },
           icon: Icon(Icons.arrow_back),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.question_mark_outlined),
+            onPressed: () {
+              // how to play 'em games (trooco)
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Como jogar Blackjack?'),
+                    content: const Text(
+                      'Blackjack é um jogo de cartas jogado com um baralho comum. '
+                      'O objetivo do jogo é chegar o mais próximo possível de 21 pontos, '
+                      'sem ultrapassar esse valor, se ultrapassado, o convidado perde.'
+                      'Na mesa, o jogador da casa irá distrubuir as cartas que serão reveladas ao longo do jogo.',
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('Fechar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Row(
         children: [
