@@ -15,6 +15,9 @@ class _BlackJackPageState extends State<BlackJackPage> {
   int _rightCount = 0;
   int _rightWins = 0;
   int up = 1;
+  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  bool customeDialRoot = false;
+  bool extend = false;
 
   void _incrementLeft() {
     setState(() {
@@ -293,14 +296,20 @@ class _BlackJackPageState extends State<BlackJackPage> {
       ),
 
       floatingActionButton: SpeedDial(
+        openCloseDial: isDialOpen,
         icon: Icons.add,
         activeIcon: Icons.close,
         backgroundColor: Colors.blue,
+        childPadding: EdgeInsets.all(5),
+        activeLabel: Text('Fechar'),
+        onOpen: () => isDialOpen.value = true,
+        onClose: () => isDialOpen.value = false,
+        closeManually: false,
+        renderOverlay: false,
         children: [
           SpeedDialChild(
             child: const Icon(Icons.card_membership_outlined),
             backgroundColor: Colors.deepPurple,
-            foregroundColor: Colors.white,
             label: 'Trucaralho',
             onTap:
                 () => Navigator.push(
