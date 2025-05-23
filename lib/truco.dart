@@ -16,6 +16,9 @@ class _TrucoPageState extends State<TrucoPage> {
   int _rightWins = 0;
   int up = 1;
   String pedir = "truco!";
+  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  bool customeDialRoot = false;
+  bool extend = false;
 
   void _incrementLeft() {
     setState(() {
@@ -146,8 +149,6 @@ class _TrucoPageState extends State<TrucoPage> {
       _rightCount = 0;
     });
   }
-
-  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
@@ -329,11 +330,16 @@ class _TrucoPageState extends State<TrucoPage> {
         icon: Icons.add,
         activeIcon: Icons.close,
         backgroundColor: Colors.blue,
+        childPadding: EdgeInsets.all(5),
+        activeLabel: Text('Fechar'),
+        onOpen: () => isDialOpen.value = true,
+        onClose: () => isDialOpen.value = false,
+        closeManually: false,
+        renderOverlay: false,
         children: [
           SpeedDialChild(
             child: const Icon(Icons.card_giftcard),
             backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
             label: 'BlackJack',
             onTap:
                 () => Navigator.push(
