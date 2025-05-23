@@ -154,6 +154,7 @@ class _TrucoPageState extends State<TrucoPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trucaralho'),
+
         centerTitle: true,
         leading: IconButton(
           onPressed: () {
@@ -161,6 +162,36 @@ class _TrucoPageState extends State<TrucoPage> {
           },
           icon: Icon(Icons.arrow_back),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.question_mark_outlined),
+            onPressed: () {
+              // how to play 'em games (trooco)
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Como jogar Truco?'),
+                    content: const Text(
+                      'Truco é um jogo de cartas jogado com um baralho espanhol. '
+                      'O objetivo é ser o primeiro a alcançar 12 pontos. '
+                      'Os jogadores podem pedir "truco" para aumentar a aposta. '
+                      'O jogo envolve blefes e estratégias para enganar o adversário.',
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('Fechar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Row(
         children: [
