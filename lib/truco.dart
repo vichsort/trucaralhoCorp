@@ -43,7 +43,7 @@ class _TrucoPageState extends State<TrucoPage> {
   void _incrementLeft() {
     setState(() {
       _leftCount += up;
-      up = 1;
+      _microReset();
       if (_leftCount >= 12) {
         _leftCount = 0;
         _rightCount = 0;
@@ -92,8 +92,7 @@ class _TrucoPageState extends State<TrucoPage> {
   void _incrementRight() {
     setState(() {
       _rightCount += up;
-      up = 1;
-
+      _microReset();
       if (_rightCount >= 12) {
         _leftCount = 0;
         _rightCount = 0;
@@ -167,12 +166,7 @@ class _TrucoPageState extends State<TrucoPage> {
       _rightCount = 0;
       _leftWins = 0;
       _rightWins = 0;
-      up = 1;
-      pedido = "TRUCO!";
-      hideDir = false;
-      mostraBotaoDir = false;
-      hideEsq = false;
-      mostraBotaoEsq = false;
+      _microReset();
     });
   }
 
@@ -185,7 +179,13 @@ class _TrucoPageState extends State<TrucoPage> {
         _leftCount += up;
         mostraBotaoDir = false;
       }
-      up = 1;
+
+      if (_leftCount >= 12) {
+        _incrementLeft();
+      } else if (_rightCount >= 12) {
+        _incrementRight();
+      }
+      _microReset();
     });
   }
 
@@ -198,6 +198,17 @@ class _TrucoPageState extends State<TrucoPage> {
   void _resetRight() {
     setState(() {
       _rightCount = 0;
+    });
+  }
+
+  void _microReset() {
+    setState(() {
+      up = 1;
+      pedido = "TRUCO!";
+      hideDir = false;
+      hideEsq = false;
+      mostraBotaoDir = false;
+      mostraBotaoEsq = false;
     });
   }
 
