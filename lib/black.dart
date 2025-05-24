@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'truco.dart';
+import 'package:lottie/lottie.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class BlackJackPage extends StatefulWidget {
@@ -18,6 +19,21 @@ class _BlackJackPageState extends State<BlackJackPage> {
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
   bool customeDialRoot = false;
   bool extend = false;
+  bool showWinAnimation = false;
+
+  void showAnimation() {
+    setState(() {
+      showWinAnimation = true;
+    });
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          showWinAnimation = false;
+        });
+      }
+    });
+  }
 
   void _incrementLeft() {
     setState(() {
@@ -27,7 +43,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
         _leftCount = 0;
         _rightCount = 0;
         _leftWins++;
-
+        showAnimation();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Nós ganhamos!'),
@@ -77,7 +93,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
         _leftCount = 0;
         _rightCount = 0;
         _rightWins++;
-
+        showAnimation();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Eles ganharam!'),
@@ -168,130 +184,143 @@ class _BlackJackPageState extends State<BlackJackPage> {
           ),
         ],
       ),
-      body: Row(
+      body: Stack(
         children: [
-          // convidados
-          Expanded(
-            child: GestureDetector(
-              onTap: _incrementLeft,
-              onDoubleTap: _decreaseLeft,
-              onLongPress: _resetLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$_leftCount',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
+          Row(
+            children: [
+              // convidados
+              Expanded(
+                child: GestureDetector(
+                  onTap: _incrementLeft,
+                  onDoubleTap: _decreaseLeft,
+                  onLongPress: _resetLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
                       ),
-                      Text(
-                        "Convidados",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF534d36),
-                        ),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$_leftCount',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          Text(
+                            "Convidados",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF534d36),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Image(
+                            image: AssetImage('images/paus.png'),
+                            height: 150,
+                            width: 150,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '$_leftWins',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      const Image(
-                        image: AssetImage('images/paus.png'),
-                        height: 150,
-                        width: 150,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '$_leftWins',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
 
-          // linha
-          Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(onPressed: _changeUp, child: Text('$up')),
-              SizedBox(height: 20),
-              ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
+              // linha
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(onPressed: _changeUp, child: Text('$up')),
+                  SizedBox(height: 20),
+                  ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
+                ],
+              ),
+
+              // casa
+              Expanded(
+                child: GestureDetector(
+                  onTap: _incrementRight,
+                  onDoubleTap: _decreaseRight,
+                  onLongPress: _resetRight,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
+                      ),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '$_rightCount',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                          Text(
+                            "Casa",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF534d36),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Image(
+                            image: AssetImage('images/copas.png'),
+                            height: 150,
+                            width: 150,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '$_rightWins',
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-
-          // casa
-          Expanded(
-            child: GestureDetector(
-              onTap: _incrementRight,
-              onDoubleTap: _decreaseRight,
-              onLongPress: _resetRight,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$_rightCount',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      Text(
-                        "Casa",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF534d36),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Image(
-                        image: AssetImage('images/copas.png'),
-                        height: 150,
-                        width: 150,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '$_rightWins',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+          if (showWinAnimation)
+            Center(
+              child: Lottie.network(
+                'https://lottie.host/0e03df0c-be10-4f75-835f-0e5c6715129d/vw87WFVoOy.json',
+                repeat: false,
+                height: 400,
+                width: 400,
               ),
             ),
-          ),
         ],
       ),
 
