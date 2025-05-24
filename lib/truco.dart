@@ -16,7 +16,11 @@ class _TrucoPageState extends State<TrucoPage> {
   int _rightCount = 0;
   int _rightWins = 0;
   int up = 1;
-  String pedir = "truco!";
+  bool mostraBotaoDir = false;
+  bool hideDir = false;
+  bool mostraBotaoEsq = false;
+  bool hideEsq = false;
+  String pedido = "TRUCO!";
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
   bool customeDialRoot = false;
   bool extend = false;
@@ -105,22 +109,54 @@ class _TrucoPageState extends State<TrucoPage> {
     });
   }
 
-  void _changeUp() {
+  void _changeUp(String lado, bool trucado) {
     setState(() {
-      if (up == 1) {
-        up = 3;
-        pedir = "seis!";
-      } else if (up == 3) {
-        up = 6;
-        pedir = "nove!";
-      } else if (up == 6) {
-        up = 9;
-        pedir = "doze!";
-      } else if (up == 9) {
-        up = 12;
-        pedir = "truco!";
+      final pedidos = ["TRUCO!", "SEIS!", "NOVE!", "DOZE!"];
+      final ups = [1, 3, 6, 9, 12];
+
+      int currentIndex = pedidos.indexOf(pedido);
+
+      // Se for trucado aumenta a aposta
+      if (trucado) {
+        if (currentIndex < pedidos.length - 1) {
+          // mostra aceitar/correr no outro lado
+          if (lado == "esq") {
+            mostraBotaoDir = true;
+            mostraBotaoEsq = false;
+            hideEsq = true;
+            hideDir = false;
+          } else {
+            mostraBotaoEsq = true;
+            mostraBotaoDir = false;
+            hideDir = true;
+            hideEsq = false;
+          }
+          up = ups[currentIndex + 1];
+          pedido = pedidos[currentIndex + 1];
+        } else {
+          // não sobe depois de doze
+          up = 12;
+          pedido = pedidos.last;
+          mostraBotaoDir = false;
+          mostraBotaoEsq = false;
+          hideDir = true;
+          hideEsq = true;
+        }
+        return;
+      }
+
+      // este loop refere quando se aceita o trucado
+      // dai escondemos os aceitar/correr para pode aumentar a aposta
+      if (lado == "esq") {
+        mostraBotaoDir = false;
+        mostraBotaoEsq = false;
+        hideDir = true;
+        hideEsq = false;
       } else {
-        up = 1;
+        mostraBotaoEsq = false;
+        mostraBotaoDir = false;
+        hideEsq = true;
+        hideDir = false;
       }
     });
   }
@@ -134,23 +170,16 @@ class _TrucoPageState extends State<TrucoPage> {
     });
   }
 
-  void _correr() {
+  void _correr(lado) {
     setState(() {
-      if (up == 1) {
-        up = 3;
-        pedir = "seis!";
-      } else if (up == 3) {
-        up = 6;
-        pedir = "nove!";
-      } else if (up == 6) {
-        up = 9;
-        pedir = "doze!";
-      } else if (up == 9) {
-        up = 12;
-        pedir = "doze!";
+      if (lado == "esq") {
+        _rightCount += up;
+        mostraBotaoEsq = false;
       } else {
-        up = 1;
+        _leftCount += up;
+        mostraBotaoDir = false;
       }
+      up = 1;
     });
   }
 
@@ -237,7 +266,7 @@ class _TrucoPageState extends State<TrucoPage> {
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
+                              color: Colors.blue,
                             ),
                           ),
                           Text(
@@ -263,6 +292,54 @@ class _TrucoPageState extends State<TrucoPage> {
                               color: Colors.amber,
                             ),
                           ),
+
+                          SizedBox(height: 100),
+
+                          if (mostraBotaoEsq == false && hideEsq == false)
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Color(0xFF1f1d1e),
+                                minimumSize: Size(120, 66),
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(12),
+                                  ),
+                                ),
+                              ),
+                              onPressed: () {
+                                _changeUp("esq", true);
+                              },
+                              child: Text(pedido),
+                            ),
+
+                          if (mostraBotaoEsq)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    print('CORREU!');
+                                    _correr("esq");
+                                  },
+                                  child: Text('CORRER'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _changeUp("esq", false);
+                                  },
+                                  child: Text('ACEITAR'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -270,17 +347,13 @@ class _TrucoPageState extends State<TrucoPage> {
                 ),
               ),
 
-              // linha
+              // Meio
               Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Valendo: $up"),
                   SizedBox(height: 60),
-                  ElevatedButton(onPressed: _changeUp, child: Text('$pedir')),
-                  SizedBox(height: 30),
-                  ElevatedButton(onPressed: _correr, child: Text("Correr")),
-                  SizedBox(height: 30),
                   ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
                 ],
               ),
@@ -308,7 +381,7 @@ class _TrucoPageState extends State<TrucoPage> {
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
+                              color: Colors.red,
                             ),
                           ),
                           Text(
@@ -334,6 +407,53 @@ class _TrucoPageState extends State<TrucoPage> {
                               color: Colors.amber,
                             ),
                           ),
+
+                          SizedBox(height: 100),
+
+                          if (mostraBotaoDir == false && hideDir == false)
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Color(0xFF1f1d1e),
+                                minimumSize: Size(120, 66),
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(12),
+                                  ),
+                                ),
+                              ),
+                              onPressed: () {
+                                _changeUp("dir", true);
+                              },
+                              child: Text(pedido),
+                            ),
+
+                          if (mostraBotaoDir)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _correr("dir");
+                                  },
+                                  child: Text('CORRER'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _changeUp("dir", false);
+                                  },
+                                  child: Text('ACEITAR'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),

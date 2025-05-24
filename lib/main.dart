@@ -3,7 +3,7 @@ import 'black.dart';
 import 'truco.dart';
 
 void main() {
-  runApp(const TrucaralhoApp()); // 🔧 Correto agora
+  runApp(const TrucaralhoApp());
 }
 
 class TrucaralhoApp extends StatelessWidget {
@@ -16,7 +16,7 @@ class TrucaralhoApp extends StatelessWidget {
       theme: ThemeData(),
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
-      home: const HomePage(), // Aqui você usa sua HomePage normalmente
+      home: const HomePage(),
     );
   }
 }
