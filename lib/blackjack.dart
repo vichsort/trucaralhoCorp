@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'truco.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'truco.dart';
+import 'apostas.dart';
 
 class BlackJackPage extends StatefulWidget {
   const BlackJackPage({Key? key}) : super(key: key);
@@ -178,6 +179,10 @@ class _BlackJackPageState extends State<BlackJackPage> {
     }
   }
 
+  void _openModal() {
+    showModalBottomSheet(context: context, builder: (context) => BetPage());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,9 +197,12 @@ class _BlackJackPageState extends State<BlackJackPage> {
         ),
         actions: [
           IconButton(
+            onPressed: _openModal,
+            icon: Icon(Icons.attach_money_sharp),
+          ),
+          IconButton(
             icon: const Icon(Icons.question_mark_outlined),
             onPressed: () {
-              // how to play 'em games (trooco)
               showDialog(
                 context: context,
                 builder: (context) {
@@ -424,7 +432,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
           SpeedDialChild(
             child: const Icon(Icons.card_membership_outlined),
             backgroundColor: Colors.deepPurple,
-            label: 'Trucaralho',
+            label: 'Truco Paulista',
             onTap:
                 () => Navigator.push(
                   context,
