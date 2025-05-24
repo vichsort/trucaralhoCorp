@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lottie/lottie.dart';
-import 'black.dart';
+import 'blackjack.dart';
 
 class TrucoPage extends StatefulWidget {
   const TrucoPage({Key? key}) : super(key: key);
@@ -167,6 +167,12 @@ class _TrucoPageState extends State<TrucoPage> {
       _rightCount = 0;
       _leftWins = 0;
       _rightWins = 0;
+      up = 1;
+      pedido = "TRUCO!";
+      hideDir = false;
+      mostraBotaoDir = false;
+      hideEsq = false;
+      mostraBotaoEsq = false;
     });
   }
 
@@ -320,7 +326,6 @@ class _TrucoPageState extends State<TrucoPage> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    print('CORREU!');
                                     _correr("esq");
                                   },
                                   child: Text('CORRER'),

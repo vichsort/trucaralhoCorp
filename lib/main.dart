@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'black.dart';
+import 'blackjack.dart';
 import 'truco.dart';
 
 void main() {

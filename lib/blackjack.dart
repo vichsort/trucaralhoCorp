@@ -15,7 +15,9 @@ class _BlackJackPageState extends State<BlackJackPage> {
   int _leftWins = 0;
   int _rightCount = 0;
   int _rightWins = 0;
-  int up = 1;
+  int up = 2;
+  String carta = "2";
+  bool aceDetect = false;
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
   bool customeDialRoot = false;
   bool extend = false;
@@ -38,15 +40,27 @@ class _BlackJackPageState extends State<BlackJackPage> {
   void _incrementLeft() {
     setState(() {
       _leftCount += up;
-      up = 1;
-      if (_leftCount >= 12) {
+      up = 2;
+      carta = "2";
+      if (_leftCount >= 21) {
         _leftCount = 0;
         _rightCount = 0;
         _leftWins++;
         showAnimation();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Nós ganhamos!'),
+            content: const Text('O convidado ganhou!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      } else if (_leftCount > 21) {
+        _leftCount = 0;
+        _rightCount = 0;
+        _rightWins++;
+        showAnimation();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('O convidado passou de 21!'),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -87,16 +101,28 @@ class _BlackJackPageState extends State<BlackJackPage> {
   void _incrementRight() {
     setState(() {
       _rightCount += up;
-      up = 1;
+      up = 2;
+      carta = "2";
 
-      if (_rightCount >= 12) {
+      if (_rightCount == 21) {
         _leftCount = 0;
         _rightCount = 0;
         _rightWins++;
         showAnimation();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Eles ganharam!'),
+            content: const Text('O dealer ganhou!'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      } else if (_rightCount > 21) {
+        _leftCount = 0;
+        _rightCount = 0;
+        _leftWins++;
+        showAnimation();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('O dealer passou de 21!'),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -106,17 +132,29 @@ class _BlackJackPageState extends State<BlackJackPage> {
 
   void _changeUp() {
     setState(() {
-      if (up == 1) {
-        up = 3;
-      } else if (up == 3) {
-        up = 6;
-      } else if (up == 6) {
-        up = 9;
-      } else if (up == 9) {
-        up = 12;
-      } else {
-        up = 1;
-      }
+      Map<String, int> cartado = {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "10": 10,
+        "Rainha": 10,
+        "Valete": 10,
+        "Rei": 10,
+        "Ás": 11,
+      };
+
+      List<String> keys = cartado.keys.toList();
+      int currentIndex = keys.indexOf(carta);
+      currentIndex = (currentIndex + 1) % keys.length;
+      carta = keys[currentIndex];
+      up = cartado[carta]!;
+
+      up == 11 ? aceDetect = true : aceDetect = false;
     });
   }
 
@@ -126,19 +164,18 @@ class _BlackJackPageState extends State<BlackJackPage> {
       _rightCount = 0;
       _leftWins = 0;
       _rightWins = 0;
+      up = 2;
+      carta = "2";
     });
   }
 
-  void _resetLeft() {
-    setState(() {
-      _leftCount = 0;
-    });
-  }
-
-  void _resetRight() {
-    setState(() {
-      _rightCount = 0;
-    });
+  void _aceVal(String lado, bool total) {
+    total ? up = 11 : up = 1;
+    if (lado == "esq") {
+      _incrementLeft();
+    } else {
+      _incrementRight();
+    }
   }
 
   @override
@@ -188,12 +225,11 @@ class _BlackJackPageState extends State<BlackJackPage> {
         children: [
           Row(
             children: [
-              // convidados
+              // você
               Expanded(
                 child: GestureDetector(
                   onTap: _incrementLeft,
-                  onDoubleTap: _decreaseLeft,
-                  onLongPress: _resetLeft,
+                  onLongPress: _decreaseLeft,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -215,7 +251,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
                             ),
                           ),
                           Text(
-                            "Convidados",
+                            "Convidado",
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -237,6 +273,31 @@ class _BlackJackPageState extends State<BlackJackPage> {
                               color: Colors.amber,
                             ),
                           ),
+                          if (aceDetect)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _aceVal("esq", false);
+                                  },
+                                  child: Text('ACEITAR 1'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _aceVal("esq", true);
+                                  },
+                                  child: Text('ACEITAR 11'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -249,7 +310,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(onPressed: _changeUp, child: Text('$up')),
+                  ElevatedButton(onPressed: _changeUp, child: Text('$carta')),
                   SizedBox(height: 20),
                   ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
                 ],
@@ -259,8 +320,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
               Expanded(
                 child: GestureDetector(
                   onTap: _incrementRight,
-                  onDoubleTap: _decreaseRight,
-                  onLongPress: _resetRight,
+                  onLongPress: _decreaseRight,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -282,7 +342,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
                             ),
                           ),
                           Text(
-                            "Casa",
+                            "Dealer",
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -304,6 +364,31 @@ class _BlackJackPageState extends State<BlackJackPage> {
                               color: Colors.amber,
                             ),
                           ),
+                          if (aceDetect)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _aceVal("dir", false);
+                                  },
+                                  child: Text('ACEITAR 1'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _aceVal("dir", true);
+                                  },
+                                  child: Text('ACEITAR 11'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                     ),
