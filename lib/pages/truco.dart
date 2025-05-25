@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lottie/lottie.dart';
+import '../logic/historico.dart';
 import 'blackjack.dart';
 import 'fodinha.dart';
 import 'poker.dart';
@@ -58,7 +59,8 @@ class _TrucoPageState extends State<TrucoPage> {
           _rightCount = 0;
           _leftWins++;
           showAnimation();
-          showMessage('Eles ganharam!');
+          showMessage('Nós ganhamos!');
+          addToHistory('WIN', 'TRUCO', 'NÓS', details: 'Nós levamos a rodada!');
         }
       } else {
         _rightCount += up;
@@ -68,11 +70,12 @@ class _TrucoPageState extends State<TrucoPage> {
           _rightCount = 0;
           _rightWins++;
           showAnimation();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Eles ganharam!'),
-              duration: const Duration(seconds: 1),
-            ),
+          showMessage('Eles ganharam!');
+          addToHistory(
+            'WIN',
+            'TRUCO',
+            'ELES',
+            details: 'Eles levaram a rodada!',
           );
         }
       }
@@ -140,6 +143,12 @@ class _TrucoPageState extends State<TrucoPage> {
           hideRight = true;
           hideLeft = true;
         }
+        addToHistory(
+          'TRUCOU',
+          'TRUCO',
+          side == "left" ? "NÓS" : "ELES",
+          details: '${side == "left" ? "Nós pedimos" : "Eles pediram"} $words',
+        );
         return;
       }
 
@@ -166,6 +175,7 @@ class _TrucoPageState extends State<TrucoPage> {
       _leftWins = 0;
       _rightWins = 0;
       _microReset();
+      addToHistory('RESET', 'TRUCO', 'Jogo', details: 'Um novo jogo começou!');
     });
   }
 
@@ -184,6 +194,13 @@ class _TrucoPageState extends State<TrucoPage> {
       } else if (_rightCount >= 12) {
         _increment("right");
       }
+      addToHistory(
+        'CORREU',
+        'TRUCO',
+        side == "left" ? "NÓS" : "ELES",
+        details:
+            '${side == "left" ? "Nós corremos" : "Eles correram"} do trucado, dando $up pontos para ${side != "left" ? "nós" : "eles"}',
+      );
       _microReset();
     });
   }
@@ -214,6 +231,11 @@ class _TrucoPageState extends State<TrucoPage> {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () => showGameHistory(context),
+            tooltip: 'Histórico',
+          ),
+          IconButton(
             icon: const Icon(Icons.question_mark_outlined),
             onPressed: () {
               showDialog(
@@ -242,6 +264,7 @@ class _TrucoPageState extends State<TrucoPage> {
                 },
               );
             },
+            tooltip: 'Como jogar',
           ),
         ],
       ),
@@ -430,6 +453,12 @@ class _TrucoPageState extends State<TrucoPage> {
                               ),
                               onPressed: () {
                                 _changeUp("right", true);
+                                addToHistory(
+                                  'TRUCOU',
+                                  'TRUCO',
+                                  'ELES',
+                                  details: 'Eles pediram $words!',
+                                );
                               },
                               child: Text(words),
                             ),

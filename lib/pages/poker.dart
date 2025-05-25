@@ -209,9 +209,10 @@ class _PokerPageState extends State<PokerPage> {
     // Adicionar ao histórico
     addToHistory(
       'CALL',
+      'Poker',
       side == 'left' ? 'Convidado' : 'Casa',
       amount: amount,
-      details: 'Aposta inicial de \${amount}',
+      details: 'Aposta inicial de \$${amount}',
     );
 
     Navigator.pop(context);
@@ -298,6 +299,7 @@ class _PokerPageState extends State<PokerPage> {
     // Adicionar ao histórico
     addToHistory(
       'FOLD',
+      'Poker',
       side == 'left' ? 'Convidado' : 'Casa',
       details: 'Desistiu da rodada, perdendo \$${pot}',
     );
@@ -489,6 +491,7 @@ class _PokerPageState extends State<PokerPage> {
 
     addToHistory(
       'RAISE',
+      'Poker',
       side == 'left' ? 'Convidado' : 'Casa',
       details:
           'Aumentou a aposta em \$${side == 'left' ? leftValue : rightValue}',
@@ -584,6 +587,7 @@ class _PokerPageState extends State<PokerPage> {
 
       addToHistory(
         'ALL IN',
+        'Poker',
         side == 'left' ? 'Convidado' : 'Casa',
         details: 'Aumentou o valor em \$${amount}',
       );
@@ -611,9 +615,9 @@ class _PokerPageState extends State<PokerPage> {
         actionDetect = true;
       });
 
-      // Adicionar ao histórico
       addToHistory(
         'ACCEPT',
+        'Poker',
         side == 'left' ? 'Convidado' : 'Casa',
         amount: opponentBet,
         details: 'Aceitou a aposta de \$${opponentBet}',
@@ -632,6 +636,7 @@ class _PokerPageState extends State<PokerPage> {
       }
       addToHistory(
         'WIN',
+        'Poker',
         winner == 'left' ? 'Convidado' : 'Casa',
         details:
             '${winner == 'left' ? ' O Convidado' : ' A Casa'} levou a rodada valendo \$$pot',

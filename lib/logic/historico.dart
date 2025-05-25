@@ -10,6 +10,7 @@ int rightValue = 0;
 // Adicionar ação ao histórico
 void addToHistory(
   String action,
+  String game,
   String player, {
   int? amount,
   String? details,
@@ -19,6 +20,7 @@ void addToHistory(
     'timestamp': DateTime.now(),
     'action': action,
     'player': player,
+    'game': game,
     'amount': amount,
     'details': details,
     'potAfter': pot,
@@ -32,12 +34,9 @@ void showGameHistory(BuildContext context) {
     context: context,
     isScrollControlled: true,
     builder:
-        (context) => DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          maxChildSize: 0.9,
-          minChildSize: 0.5,
+        (context) => StatefulBuilder(
           builder:
-              (context, scrollController) => Container(
+              (_, setState) => Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[900],
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -164,7 +163,6 @@ void showGameHistory(BuildContext context) {
                                 ),
                               )
                               : ListView.builder(
-                                controller: scrollController,
                                 itemCount: gameHistory.length,
                                 reverse: true, // Mostrar mais recente primeiro
                                 itemBuilder: (context, index) {
@@ -234,11 +232,11 @@ void clearHistory(BuildContext context) {
 Widget historyTile(Map<String, dynamic> entry, int index) {
   String actionText = entry['action'];
   String playerName = entry['player'];
+  String game = entry['game'];
   int? amount = entry['amount'];
   String? details = entry['details'];
   DateTime timestamp = entry['timestamp'];
 
-  // Cores baseadas na ação
   Color actionColor = Colors.white;
   IconData actionIcon = Icons.circle;
 
@@ -251,11 +249,11 @@ Widget historyTile(Map<String, dynamic> entry, int index) {
       actionColor = Colors.blue;
       actionIcon = Icons.check_circle;
       break;
-    case 'RAISE':
+    case 'RAISE' || 'TRUCOU':
       actionColor = Colors.orange;
       actionIcon = Icons.trending_up;
       break;
-    case 'FOLD':
+    case 'FOLD' || 'CORREU' || 'PASSOU' || 'ESTOUROU':
       actionColor = Colors.red;
       actionIcon = Icons.cancel;
       break;
@@ -273,6 +271,23 @@ Widget historyTile(Map<String, dynamic> entry, int index) {
       break;
   }
 
+  Color gameColor = Colors.white;
+
+  switch (game.toUpperCase()) {
+    case 'TRUCO':
+      gameColor = Colors.deepPurple;
+      break;
+    case 'BLACKJACK':
+      gameColor = Colors.red;
+      break;
+    case 'FODINHA':
+      gameColor = Colors.blue;
+      break;
+    case 'POKER':
+      gameColor = Colors.orange;
+      break;
+  }
+
   return Container(
     margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
     decoration: BoxDecoration(
@@ -282,7 +297,7 @@ Widget historyTile(Map<String, dynamic> entry, int index) {
     ),
     child: ListTile(
       leading: CircleAvatar(
-        backgroundColor: actionColor.withOpacity(0.2),
+        backgroundColor: actionColor.withValues(alpha: 0.2),
         child: Icon(actionIcon, color: actionColor, size: 20),
       ),
       title: Row(
@@ -295,13 +310,28 @@ Widget historyTile(Map<String, dynamic> entry, int index) {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: actionColor.withOpacity(0.2),
+              color: actionColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               actionText,
               style: TextStyle(
                 color: actionColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: gameColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              game,
+              style: TextStyle(
+                color: gameColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),

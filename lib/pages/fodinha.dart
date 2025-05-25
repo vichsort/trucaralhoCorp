@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lottie/lottie.dart';
+import '../logic/historico.dart';
 import 'truco.dart';
 import 'blackjack.dart';
 import 'poker.dart';
@@ -105,6 +106,12 @@ class _FodinhaPageState extends State<FodinhaPage> {
           duration: Duration(seconds: 2),
         ),
       );
+      addToHistory(
+        'WIN',
+        'FODINHA',
+        'Jogador ${winnerIndex + 1}',
+        details: 'O jogador${winnerIndex + 1} levou a rodada!',
+      );
     }
   }
 
@@ -112,6 +119,7 @@ class _FodinhaPageState extends State<FodinhaPage> {
     setState(() {
       vidas = List.filled(numberOfPlayers, initialLives);
     });
+    addToHistory('RESET', 'FODINHA', 'Jogo', details: 'Um novo jogo começou!');
   }
 
   void _setDefault() {
@@ -135,6 +143,11 @@ class _FodinhaPageState extends State<FodinhaPage> {
           icon: Icon(Icons.arrow_back),
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () => showGameHistory(context),
+            tooltip: 'Histórico',
+          ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
             onPressed: () {
@@ -165,6 +178,7 @@ class _FodinhaPageState extends State<FodinhaPage> {
                 },
               );
             },
+            tooltip: "Como jogar",
           ),
         ],
       ),
@@ -278,14 +292,7 @@ class _FodinhaPageState extends State<FodinhaPage> {
                           ),
                         ),
                         onTap: () {
-                          if (isDead) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Jogador ${index + 1} se fodeu!'),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          } else {
+                          if (isDead != true) {
                             _decrementVida(index);
                           }
                         },

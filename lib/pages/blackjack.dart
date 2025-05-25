@@ -5,6 +5,7 @@ import 'truco.dart';
 import 'fodinha.dart';
 import 'poker.dart';
 import '../logic/apostas.dart';
+import '../logic/historico.dart';
 
 class BlackJackPage extends StatefulWidget {
   const BlackJackPage({Key? key}) : super(key: key);
@@ -58,12 +59,24 @@ class _BlackJackPageState extends State<BlackJackPage> {
           _leftWins++;
           showAnimation();
           showMessage('O convidado ganhou!');
+          addToHistory(
+            'WIN',
+            'BLACKJACK',
+            'CONVIDADO',
+            details: "O convidado levou a partida!",
+          );
         } else if (_leftCount > 21) {
           _leftCount = 0;
           _rightCount = 0;
           _rightWins++;
           showAnimation();
           showMessage('O convidado passou de 21!');
+          addToHistory(
+            'PASSOU',
+            'BLACKJACK',
+            'CONVIDADO',
+            details: "O convidado passou de 21, dando a partida para o dealer!",
+          );
         }
       } else {
         _rightCount += up;
@@ -76,12 +89,24 @@ class _BlackJackPageState extends State<BlackJackPage> {
           _rightWins++;
           showAnimation();
           showMessage('O dealer ganhou!');
+          addToHistory(
+            'WIN',
+            'BLACKJACK',
+            'DEALER',
+            details: "O dealer levou a partida!",
+          );
         } else if (_rightCount > 21) {
           _leftCount = 0;
           _rightCount = 0;
           _leftWins++;
           showAnimation();
           showMessage('O dealer passou de 21!');
+          addToHistory(
+            'PASSOU',
+            'BLACKJACK',
+            'DEALER',
+            details: "O dealer passou de 21, dando a partida para o convidado!",
+          );
         }
       }
     });
@@ -141,6 +166,12 @@ class _BlackJackPageState extends State<BlackJackPage> {
       _rightWins = 0;
       up = 2;
       carta = "2";
+      addToHistory(
+        'RESET',
+        'BLACKJACK',
+        'Jogo',
+        details: 'Um novo jogo começou!',
+      );
     });
   }
 
@@ -171,6 +202,11 @@ class _BlackJackPageState extends State<BlackJackPage> {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () => showGameHistory(context),
+            tooltip: 'Histórico',
+          ),
+          IconButton(
             onPressed: _openModal,
             icon: Icon(Icons.attach_money_sharp),
           ),
@@ -200,6 +236,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
                 },
               );
             },
+            tooltip: "Como jogar",
           ),
         ],
       ),
