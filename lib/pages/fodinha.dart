@@ -209,12 +209,16 @@ class _FodinhaPageState extends State<FodinhaPage> {
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: const Text('Como jogar Blackjack?'),
+                    title: const Text('Como jogar Fodinha?'),
                     content: const Text(
-                      'Blackjack é um jogo de cartas jogado com um baralho comum. '
-                      'O objetivo do jogo é chegar o mais próximo possível de 21 pontos, '
-                      'sem ultrapassar esse valor, se ultrapassado, o convidado perde.'
-                      'Na mesa, o jogador da casa irá distrubuir as cartas que serão reveladas ao longo do jogo.',
+                      'Fodinha é um jogo similar ao Truco Paulista, a diferença é que '
+                      'não existe a possibilidade de pedir truco, e o jogo pode ser jogado com até 6 jogadores. '
+                      'O objetivo é adivinhar quantas rodadas cada jogador irá ganhar, '
+                      'se um jogador errar o número de rodadas em que ele iria ganhar, ele perde 1 de suas 5 vidas. '
+                      'Na primeira rodada, com 1 carta, os jogadores não poderão ver sua carta, e terão que adivinhar '
+                      'se ganham ou não a partir das cartas dos adversários. '
+                      'A partir da segunda rodada, cada jogador poderá ver suas cartas e determinar seu '
+                      'Número de rodadas em que acha que irá ganhar.',
                     ),
                     actions: [
                       TextButton(
