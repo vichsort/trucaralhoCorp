@@ -30,6 +30,26 @@ class BetController {
   }
 }
 
+class BetControllerManager {
+  BetControllerManager._privateConstructor();
+
+  static final BetControllerManager instance =
+      BetControllerManager._privateConstructor();
+
+  final Map<String, BetController> _controllers = {};
+
+  BetController getController(String id) {
+    return _controllers.putIfAbsent(
+      id,
+      () => BetController._privateConstructor(),
+    );
+  }
+
+  void clearAll() {
+    _controllers.clear();
+  }
+}
+
 class _BetPageState extends State<BetPage> {
   final Map<int, int> selectedIndices = {};
   int selectedValues = 0;
@@ -59,7 +79,7 @@ class _BetPageState extends State<BetPage> {
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Ajuste conforme necessário
+                  crossAxisCount: 2,
                   childAspectRatio: 3 / 2,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,

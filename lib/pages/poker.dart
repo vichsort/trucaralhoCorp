@@ -5,6 +5,7 @@ import 'truco.dart';
 import 'blackjack.dart';
 import 'fodinha.dart';
 import '../logic/apostas.dart';
+import '../logic/fichas.dart';
 
 class PokerPage extends StatefulWidget {
   const PokerPage({Key? key}) : super(key: key);
@@ -14,17 +15,61 @@ class PokerPage extends StatefulWidget {
 }
 
 class _PokerPageState extends State<PokerPage> {
-  int _leftCount = 0;
-  int _leftWins = 0;
-  int _rightCount = 0;
-  int _rightWins = 0;
-  int up = 2;
-  String carta = "2";
-  bool aceDetect = false;
+  // CALL - APOSTAR UMA FICHA CADA
+  // FOLD - DAR SUA FICHA PRO ADVERSÁRIO
+  // RAISE - AUMENTAR APOSTA
+  // ALL IN - COLOCAR TODAS AS FICHAS
+  // POT - VALOR DA APOSTA (SOMA DAS FICHAS DOS DOIS LADOS)
+
+  // RESPOSTA PADRÃO ELSE: DO NOTHING
+
+  // o jogador pode chamar a aposta com um botão call (como do truco)
+  // o call vai pedir a quantidade de fichas que ele vai colocar
+  // Cada um dos usuários coloca a quantidade de fichas específicas
+  // então, a aposta vai ser o valor do pot.
+
+  // clicou de um lado -> confirmar "jogador ganhou aposta?"
+  // se sim: playerValue += pot
+  // se sim: playerWins += 1
+
+  // depois do call, cada um dos usuários pode dar um raise
+  // pediu o raise? quem pediu bota a quantidade de fichas
+  // o outro usuário decide de quer aceitar (raise)
+  // ou se quer dar a sua quantidade de fichas para o outro,
+  // fold -> confirmar "você quer dar um fold?"
+  // se sim: playerValue += pot
+  // se sim: playerWins += 1
+
+  // vai ter a opção de ir ALL IN - que coloca 10 fichas do
+  // maior tipo que você tem colocado na mesa
+  // all in -> confirmar "você quer dar um all in? Isso colocará
+  // 10 fichas {cor da ficha}, equivalente a {valor}"
+  // se sim: playerInTable += valor
+
+  // fold e accept ficam então disponíveis, sendo fold a mesma
+  // coisa que já era e accept nivela a quantidade de playerInTable
+
+  // se possível colocar um histórico
+
+  // posto na mesa
+  int leftInTable = 0;
+  int rightInTable = 0;
+
+  // vitórias
+  int leftWins = 0;
+  int rightWins = 0;
+
+  // valor ganho - valor perdido
+  int leftValue = 0;
+  int rightValue = 0;
+
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
   bool customeDialRoot = false;
   bool extend = false;
   bool showWinAnimation = false;
+  // referente ao jogo
+  bool actionDetect = false;
+  int pot = 0;
 
   void showAnimation() {
     setState(() {
@@ -40,149 +85,124 @@ class _PokerPageState extends State<PokerPage> {
     });
   }
 
-  void _incrementLeft() {
-    setState(() {
-      _leftCount += up;
-      up = 2;
-      carta = "2";
-      if (_leftCount >= 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O convidado ganhou!'),
-            duration: const Duration(seconds: 1),
-          ),
+  Future<void> showBetModal(BuildContext context, String controllerId) async {
+    final controller = BetControllerManager.instance.getController(
+      controllerId,
+    );
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        final indices = Map<int, int>.from(controller.selectedIndices);
+        int values = controller.selectedValues;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Center(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 3 / 2,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                      itemCount: fichas.length,
+                      itemBuilder: (context, index) {
+                        final ficha = fichas[index];
+                        int count = indices[index] ?? 0;
+
+                        return Card(
+                          color:
+                              count > 0 ? Colors.blue[900] : Colors.grey[700],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (ficha.caminho_imagem.isNotEmpty)
+                                Image.asset(
+                                  ficha.caminho_imagem,
+                                  height: 60,
+                                  fit: BoxFit.contain,
+                                ),
+                              const SizedBox(height: 8),
+                              Text(
+                                ficha.nome,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text('Valor: \$: ${ficha.valor}'),
+                              const SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    color: Colors.white,
+                                    onPressed:
+                                        count > 0
+                                            ? () {
+                                              setState(() {
+                                                if (indices[index] != null &&
+                                                    indices[index]! > 1) {
+                                                  indices[index] =
+                                                      indices[index]! - 1;
+                                                } else {
+                                                  indices.remove(index);
+                                                }
+                                                values -= fichas[index].valor;
+                                                controller.save(
+                                                  indices,
+                                                  values,
+                                                );
+                                              });
+                                            }
+                                            : null,
+                                  ),
+                                  Text(
+                                    '$count',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      setState(() {
+                                        print(controllerId);
+                                        indices[index] =
+                                            (indices[index] ?? 0) + 1;
+                                        values += fichas[index].valor;
+                                        controller.save(indices, values);
+                                        if (controllerId == "left") {
+                                          leftValue += values;
+                                        } else {
+                                          rightValue += values;
+                                        }
+                                        pot += values;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Text('Total adicionado: $values'),
+                ],
+              ),
+            );
+          },
         );
-      } else if (_leftCount > 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O convidado passou de 21!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _decreaseLeft() {
-    setState(() {
-      _leftCount--;
-      if (_leftCount <= 0) {
-        _leftCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _decreaseRight() {
-    setState(() {
-      _rightCount--;
-      if (_rightCount <= 0) {
-        _rightCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _incrementRight() {
-    setState(() {
-      _rightCount += up;
-      up = 2;
-      carta = "2";
-
-      if (_rightCount == 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O dealer ganhou!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      } else if (_rightCount > 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O dealer passou de 21!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _changeUp() {
-    setState(() {
-      Map<String, int> cartado = {
-        "2": 2,
-        "3": 3,
-        "4": 4,
-        "5": 5,
-        "6": 6,
-        "7": 7,
-        "8": 8,
-        "9": 9,
-        "10": 10,
-        "Rainha": 10,
-        "Valete": 10,
-        "Rei": 10,
-        "Ás": 11,
-      };
-
-      List<String> keys = cartado.keys.toList();
-      int currentIndex = keys.indexOf(carta);
-      currentIndex = (currentIndex + 1) % keys.length;
-      carta = keys[currentIndex];
-      up = cartado[carta]!;
-
-      up == 11 ? aceDetect = true : aceDetect = false;
-    });
-  }
-
-  void _reset() {
-    setState(() {
-      _leftCount = 0;
-      _rightCount = 0;
-      _leftWins = 0;
-      _rightWins = 0;
-      up = 2;
-      carta = "2";
-    });
-  }
-
-  void _aceVal(String lado, bool total) {
-    total ? up = 11 : up = 1;
-    if (lado == "esq") {
-      _incrementLeft();
-    } else {
-      _incrementRight();
-    }
-  }
-
-  void _openModal() {
-    showModalBottomSheet(context: context, builder: (context) => BetPage());
+      },
+    );
   }
 
   @override
@@ -198,10 +218,6 @@ class _PokerPageState extends State<PokerPage> {
           icon: Icon(Icons.arrow_back),
         ),
         actions: [
-          IconButton(
-            onPressed: _openModal,
-            icon: Icon(Icons.attach_money_sharp),
-          ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
             onPressed: () {
@@ -238,8 +254,10 @@ class _PokerPageState extends State<PokerPage> {
               // você
               Expanded(
                 child: GestureDetector(
-                  onTap: _incrementLeft,
-                  onLongPress: _decreaseLeft,
+                  onTap: () {
+                    showBetModal(context, "left");
+                  },
+                  onLongPress: () {},
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -253,7 +271,7 @@ class _PokerPageState extends State<PokerPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '$_leftCount',
+                            '$leftValue',
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
@@ -276,21 +294,19 @@ class _PokerPageState extends State<PokerPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '$_leftWins',
+                            '$leftWins',
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
                               color: Colors.amber,
                             ),
                           ),
-                          if (aceDetect)
+                          if (actionDetect)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("esq", false);
-                                  },
+                                  onPressed: () {},
                                   child: Text('ACEITAR 1'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
@@ -298,9 +314,7 @@ class _PokerPageState extends State<PokerPage> {
                                 ),
                                 SizedBox(width: 20),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("esq", true);
-                                  },
+                                  onPressed: () {},
                                   child: Text('ACEITAR 11'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
@@ -324,21 +338,23 @@ class _PokerPageState extends State<PokerPage> {
                     valueListenable:
                         BetController.instance.selectedValuesNotifier,
                     builder: (context, value, child) {
-                      return Text('Na mesa: ${value * 2}');
+                      return Text('Na mesa: ${pot}');
                     },
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(onPressed: _changeUp, child: Text('$carta')),
+                  ElevatedButton(onPressed: () {}, child: Text('aa')),
                   SizedBox(height: 20),
-                  ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
+                  ElevatedButton(onPressed: () {}, child: Icon(Icons.refresh)),
                 ],
               ),
 
               // casa
               Expanded(
                 child: GestureDetector(
-                  onTap: _incrementRight,
-                  onLongPress: _decreaseRight,
+                  onTap: () {
+                    showBetModal(context, "right");
+                  },
+                  onLongPress: () {},
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -352,7 +368,7 @@ class _PokerPageState extends State<PokerPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '$_rightCount',
+                            '$rightValue',
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
@@ -360,7 +376,7 @@ class _PokerPageState extends State<PokerPage> {
                             ),
                           ),
                           Text(
-                            "Dealer",
+                            "Casa",
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -375,21 +391,19 @@ class _PokerPageState extends State<PokerPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '$_rightWins',
+                            '$rightWins',
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
                               color: Colors.amber,
                             ),
                           ),
-                          if (aceDetect)
+                          if (actionDetect)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("dir", false);
-                                  },
+                                  onPressed: () {},
                                   child: Text('ACEITAR 1'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
@@ -397,9 +411,7 @@ class _PokerPageState extends State<PokerPage> {
                                 ),
                                 SizedBox(width: 20),
                                 ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("dir", true);
-                                  },
+                                  onPressed: () {},
                                   child: Text('ACEITAR 11'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
