@@ -29,7 +29,39 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Trucaralho')),
+      appBar: AppBar(
+        title: const Text('Trucaralho'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.question_mark_outlined),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Comandos básicos'),
+                    content: const Text(
+                      'Toque único: Aumenta 1 ponto'
+                      'Toque duplo: Diminui 1 ponto'
+                      'Segurar apertado: Reseta pontos',
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('Fechar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
