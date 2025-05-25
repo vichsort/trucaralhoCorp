@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'blackjack.dart';
-import 'truco.dart';
+import 'pages/blackjack.dart';
+import 'pages/truco.dart';
 
 void main() {
   runApp(const TrucaralhoApp());

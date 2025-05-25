@@ -8,9 +8,46 @@ class BetPage extends StatefulWidget {
   _BetPageState createState() => _BetPageState();
 }
 
-class _BetPageState extends State<BetPage> {
-  final Set<int> selectedIndices = {};
+class BetController {
+  BetController._privateConstructor();
+
+  static final BetController instance = BetController._privateConstructor();
+
+  Map<int, int> selectedIndices = {};
   int selectedValues = 0;
+
+  final ValueNotifier<int> selectedValuesNotifier = ValueNotifier<int>(0);
+
+  void save(Map<int, int> indices, int values) {
+    selectedIndices = Map<int, int>.from(indices);
+    selectedValues = values;
+    selectedValuesNotifier.value = values;
+  }
+
+  void clear() {
+    selectedIndices.clear();
+    selectedValues = 0;
+  }
+}
+
+class _BetPageState extends State<BetPage> {
+  final Map<int, int> selectedIndices = {};
+  int selectedValues = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // salvos do controller (quando inicia)
+    selectedIndices.addAll(BetController.instance.selectedIndices);
+    selectedValues = BetController.instance.selectedValues;
+  }
+
+  @override
+  void dispose() {
+    // salva no controller (quando fecha)
+    BetController.instance.save(selectedIndices, selectedValues);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +67,7 @@ class _BetPageState extends State<BetPage> {
                 itemCount: fichas.length,
                 itemBuilder: (context, index) {
                   final ficha = fichas[index];
-                  int count = selectedIndices.where((i) => i == index).length;
+                  int count = selectedIndices[index] ?? 0;
 
                   return Card(
                     color: count > 0 ? Colors.blue[900] : Colors.grey[700],
@@ -60,8 +97,18 @@ class _BetPageState extends State<BetPage> {
                                   count > 0
                                       ? () {
                                         setState(() {
-                                          selectedIndices.remove(index);
+                                          if (selectedIndices[index] != null &&
+                                              selectedIndices[index]! > 1) {
+                                            selectedIndices[index] =
+                                                selectedIndices[index]! - 1;
+                                          } else {
+                                            selectedIndices.remove(index);
+                                          }
                                           selectedValues -= fichas[index].valor;
+                                          BetController.instance.save(
+                                            selectedIndices,
+                                            selectedValues,
+                                          );
                                         });
                                       }
                                       : null,
@@ -78,8 +125,13 @@ class _BetPageState extends State<BetPage> {
                               color: Colors.white,
                               onPressed: () {
                                 setState(() {
-                                  selectedIndices.add(index);
+                                  selectedIndices[index] =
+                                      (selectedIndices[index] ?? 0) + 1;
                                   selectedValues += fichas[index].valor;
+                                  BetController.instance.save(
+                                    selectedIndices,
+                                    selectedValues,
+                                  );
                                 });
                               },
                             ),

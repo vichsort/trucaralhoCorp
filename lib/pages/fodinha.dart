@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'truco.dart';
-import 'apostas.dart';
+import 'blackjack.dart';
+import '../apostas.dart';
 
-class BlackJackPage extends StatefulWidget {
-  const BlackJackPage({Key? key}) : super(key: key);
+class FodinhaPage extends StatefulWidget {
+  const FodinhaPage({Key? key}) : super(key: key);
 
   @override
-  State<BlackJackPage> createState() => _BlackJackPageState();
+  State<FodinhaPage> createState() => _FodinhaPageState();
 }
 
-class _BlackJackPageState extends State<BlackJackPage> {
+class _FodinhaPageState extends State<FodinhaPage> {
   int _leftCount = 0;
   int _leftWins = 0;
   int _rightCount = 0;
@@ -318,6 +319,14 @@ class _BlackJackPageState extends State<BlackJackPage> {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  ValueListenableBuilder<int>(
+                    valueListenable:
+                        BetController.instance.selectedValuesNotifier,
+                    builder: (context, value, child) {
+                      return Text('Na mesa: ${value * 2}');
+                    },
+                  ),
+                  SizedBox(height: 20),
                   ElevatedButton(onPressed: _changeUp, child: Text('$carta')),
                   SizedBox(height: 20),
                   ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
@@ -437,6 +446,18 @@ class _BlackJackPageState extends State<BlackJackPage> {
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const TrucoPage()),
+                ),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.card_membership_outlined),
+            backgroundColor: Colors.red,
+            label: 'BlackJack',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BlackJackPage(),
+                  ),
                 ),
           ),
         ],
