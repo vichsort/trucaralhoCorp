@@ -66,6 +66,7 @@ Mostre suas habilidades e tente blefar até o final. Quem sabe você não sai mi
 - [SpeedDial](https://pub.dev/packages/flutter_speed_dial) - imported
 - [showModalBottomSheet](https://api.flutter.dev/flutter/material/showModalBottomSheet.html) 
 - [ValueListenableBuilder](https://api.flutter.dev/flutter/widgets/ValueListenableBuilder-class.html)
+- [DropdownMenuItem](https://api.flutter.dev/flutter/material/DropdownMenuItem-class.html)
 
 ## 🤝 Contribua!
 
