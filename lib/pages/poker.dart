@@ -6,6 +6,7 @@ import 'blackjack.dart';
 import 'fodinha.dart';
 import '../logic/apostas.dart';
 import '../logic/fichas.dart';
+import '../logic/historico.dart';
 
 class PokerPage extends StatefulWidget {
   const PokerPage({Key? key}) : super(key: key);
@@ -29,370 +30,6 @@ class _PokerPageState extends State<PokerPage> {
   String lastAction = ''; // Para mostrar a última ação
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
 
-  // Adicionado: Histórico do jogo e número da rodada
-  List<Map<String, dynamic>> gameHistory = [];
-  int roundNumber = 1;
-
-  // Adicionar ação ao histórico
-  void addToHistory(
-    String action,
-    String player, {
-    int? amount,
-    String? details,
-  }) {
-    setState(() {
-      gameHistory.add({
-        'round': roundNumber,
-        'timestamp': DateTime.now(),
-        'action': action,
-        'player': player,
-        'amount': amount,
-        'details': details,
-        'potAfter': pot,
-        'leftValueAfter': leftValue,
-        'rightValueAfter': rightValue,
-      });
-    });
-  }
-
-  // Mostrar histórico
-  Future<void> showGameHistory() async {
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder:
-          (context) => DraggableScrollableSheet(
-            initialChildSize: 0.7,
-            maxChildSize: 0.9,
-            minChildSize: 0.5,
-            builder:
-                (context, scrollController) => Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      // Header
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.history, color: Colors.white, size: 28),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Histórico da Partida',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.close, color: Colors.white),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Stats resumo
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        color: Colors.grey[850],
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  'Rodada Atual',
-                                  style: TextStyle(color: Colors.grey[400]),
-                                ),
-                                Text(
-                                  '$roundNumber',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  'Total de Ações',
-                                  style: TextStyle(color: Colors.grey[400]),
-                                ),
-                                Text(
-                                  '${gameHistory.length}',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Text(
-                                  'Pot Atual',
-                                  style: TextStyle(color: Colors.grey[400]),
-                                ),
-                                Text(
-                                  '\$${pot}',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Lista do histórico
-                      Expanded(
-                        child:
-                            gameHistory.isEmpty
-                                ? Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.history,
-                                        size: 64,
-                                        color: Colors.grey[600],
-                                      ),
-                                      SizedBox(height: 16),
-                                      Text(
-                                        'Nenhuma ação ainda',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.grey[400],
-                                        ),
-                                      ),
-                                      Text(
-                                        'Faça sua primeira jogada!',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[500],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                                : ListView.builder(
-                                  controller: scrollController,
-                                  itemCount: gameHistory.length,
-                                  reverse:
-                                      true, // Mostrar mais recente primeiro
-                                  itemBuilder: (context, index) {
-                                    final historyIndex =
-                                        gameHistory.length - 1 - index;
-                                    final entry = gameHistory[historyIndex];
-                                    return historyTile(entry, historyIndex);
-                                  },
-                                ),
-                      ),
-
-                      // Footer com botões
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          border: Border(
-                            top: BorderSide(color: Colors.grey[700]!),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: clearHistory,
-                                icon: Icon(Icons.delete_sweep),
-                                label: Text('Limpar Histórico'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red[700],
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () => Navigator.pop(context),
-                                icon: Icon(Icons.check),
-                                label: Text('Fechar'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue[700],
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-          ),
-    );
-  }
-
-  // Widget para cada item do histórico
-  Widget historyTile(Map<String, dynamic> entry, int index) {
-    String actionText = entry['action'];
-    String playerName = entry['player'];
-    int? amount = entry['amount'];
-    String? details = entry['details'];
-    DateTime timestamp = entry['timestamp'];
-
-    // Cores baseadas na ação
-    Color actionColor = Colors.white;
-    IconData actionIcon = Icons.circle;
-
-    switch (actionText.toUpperCase()) {
-      case 'CALL':
-        actionColor = Colors.green;
-        actionIcon = Icons.add_circle;
-        break;
-      case 'CHECK':
-        actionColor = Colors.blue;
-        actionIcon = Icons.check_circle;
-        break;
-      case 'RAISE':
-        actionColor = Colors.orange;
-        actionIcon = Icons.trending_up;
-        break;
-      case 'FOLD':
-        actionColor = Colors.red;
-        actionIcon = Icons.cancel;
-        break;
-      case 'ALL IN':
-        actionColor = Colors.purple;
-        actionIcon = Icons.all_inclusive;
-        break;
-      case 'ACCEPT':
-        actionColor = Colors.teal;
-        actionIcon = Icons.thumb_up;
-        break;
-      case 'WIN':
-        actionColor = Colors.amber;
-        actionIcon = Icons.emoji_events;
-        break;
-      case 'NEW ROUND':
-        actionColor = Colors.cyan;
-        actionIcon = Icons.refresh;
-        break;
-    }
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.grey[800],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[700]!),
-      ),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: actionColor.withOpacity(0.2),
-          child: Icon(actionIcon, color: actionColor, size: 20),
-        ),
-        title: Row(
-          children: [
-            Text(
-              playerName,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            SizedBox(width: 8),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: actionColor.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                actionText,
-                style: TextStyle(
-                  color: actionColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            if (amount != null) ...[
-              SizedBox(width: 8),
-              Text(
-                '\${amount}',
-                style: TextStyle(
-                  color: Colors.green[300],
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (details != null)
-              Text(
-                details,
-                style: TextStyle(color: Colors.grey[400], fontSize: 13),
-              ),
-            SizedBox(height: 4),
-            Row(
-              children: [
-                Text(
-                  'Rodada ${entry['round']}',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}:${timestamp.second.toString().padLeft(2, '0')}',
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                ),
-                SizedBox(width: 12),
-                Text(
-                  'Pot: \$${entry['potAfter']}',
-                  style: TextStyle(color: Colors.green[400], fontSize: 12),
-                ),
-              ],
-            ),
-          ],
-        ),
-        dense: true,
-      ),
-    );
-  }
-
-  // Limpar histórico
-  void clearHistory() {
-    setState(() {
-      gameHistory.clear();
-    });
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Histórico limpo com sucesso!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
   // Exibir animação de vitória
   void showAnimation() {
     setState(() => showWinAnimation = true);
@@ -402,7 +39,7 @@ class _PokerPageState extends State<PokerPage> {
   }
 
   // CALL - Apostar fichas
-  Future<void> showCallModal(BuildContext context, String side) async {
+  Future<void> _modalCall(BuildContext context, String side) async {
     final controller = BetControllerManager.instance.getController(side);
 
     await showModalBottomSheet(
@@ -565,7 +202,7 @@ class _PokerPageState extends State<PokerPage> {
       currentBet = amount;
       gamePhase = 'called';
       lastAction =
-          '${side == 'left' ? 'Convidado' : 'Casa'} fez CALL de \${amount}';
+          '${side == 'left' ? 'Convidado' : 'Casa'} fez CALL de \$${amount}';
       actionDetect = true;
     });
 
@@ -581,7 +218,7 @@ class _PokerPageState extends State<PokerPage> {
   }
 
   // CHECK - Seguir a aposta
-  void handleCheck(String side) {
+  void _check(String side) {
     if (currentBet == 0) {
       // Se não há aposta na mesa, CHECK é gratuito
       setState(() {
@@ -611,7 +248,7 @@ class _PokerPageState extends State<PokerPage> {
   }
 
   // FOLD - Desistir e dar fichas ao oponente
-  Future<void> showFoldConfirmation(String side) async {
+  Future<void> _confirmFold(String side) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -669,7 +306,7 @@ class _PokerPageState extends State<PokerPage> {
   }
 
   // RAISE - Aumentar aposta
-  Future<void> showRaiseModal(BuildContext context, String side) async {
+  Future<void> _modalRaise(BuildContext context, String side) async {
     final controller = BetControllerManager.instance.getController(
       '${side}_raise',
     );
@@ -859,15 +496,14 @@ class _PokerPageState extends State<PokerPage> {
   }
 
   // ALL IN - Colocar todas as fichas (10 fichas do maior tipo)
-  Future<void> showAllInConfirmation(String side) async {
-    // Encontrar a ficha de maior valor que o jogador pode usar
+  Future<void> allInConfirm(String side) async {
     int playerValue = side == 'left' ? leftValue : rightValue;
 
-    // Encontrar qual é a maior ficha que cabe 10 vezes no saldo
+    // Encontra qual é maior ficha possivel
     var fichasDisponiveis =
         fichas.where((f) => f.valor * 10 <= playerValue).toList();
     if (fichasDisponiveis.isEmpty) {
-      // Se não consegue nem 10 da menor ficha, usar tudo que tem
+      // Se não consegue nem 10 da menor ficha, usa tudo que tem kkkkkk
       return showDialog<void>(
         context: context,
         builder:
@@ -887,6 +523,7 @@ class _PokerPageState extends State<PokerPage> {
     }
 
     var fichaMaior = fichasDisponiveis.reduce(
+      // retorna sempre o maior
       (a, b) => a.valor > b.valor ? a : b,
     );
     int allInAmount = fichaMaior.valor * 10;
@@ -993,6 +630,13 @@ class _PokerPageState extends State<PokerPage> {
         rightValue += pot;
         rightWins++;
       }
+      addToHistory(
+        'WIN',
+        winner == 'left' ? 'Convidado' : 'Casa',
+        details:
+            '${winner == 'left' ? ' O Convidado' : ' A Casa'} levou a rodada valendo \$$pot',
+      );
+
       // Reset do jogo
       pot = 0;
       currentBet = 0;
@@ -1040,7 +684,7 @@ class _PokerPageState extends State<PokerPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.history),
-            onPressed: showGameHistory,
+            onPressed: () => showGameHistory(context),
             tooltip: 'Histórico',
           ),
           IconButton(
@@ -1088,6 +732,7 @@ class _PokerPageState extends State<PokerPage> {
                     Expanded(
                       child: playerArea(
                         'left',
+                        'images/paus.png',
                         leftValue,
                         leftWins,
                         'Convidado',
@@ -1095,7 +740,13 @@ class _PokerPageState extends State<PokerPage> {
                     ),
                     Container(width: 2, color: Colors.white24),
                     Expanded(
-                      child: playerArea('right', rightValue, rightWins, 'Casa'),
+                      child: playerArea(
+                        'right',
+                        'images/copas.png',
+                        rightValue,
+                        rightWins,
+                        'Casa',
+                      ),
                     ),
                   ],
                 ),
@@ -1115,7 +766,7 @@ class _PokerPageState extends State<PokerPage> {
     );
   }
 
-  Widget playerArea(String id, int value, int wins, String label) {
+  Widget playerArea(String id, String path, int value, int wins, String label) {
     int inTable = id == 'left' ? leftInTable : rightInTable;
 
     return Container(
@@ -1129,10 +780,30 @@ class _PokerPageState extends State<PokerPage> {
         children: [
           Text(
             '\$${value}',
-            style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF534d36),
+            ),
           ),
-          Text(label, style: const TextStyle(fontSize: 24)),
-          Text('Vitórias: $wins', style: const TextStyle(fontSize: 20)),
+          const SizedBox(height: 8),
+          Image(image: AssetImage(path), height: 150, width: 150),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF534d36),
+            ),
+          ),
+          Text(
+            '$wins',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.amber,
+            ),
+          ),
           if (inTable > 0)
             Container(
               margin: EdgeInsets.symmetric(vertical: 8),
@@ -1159,7 +830,7 @@ class _PokerPageState extends State<PokerPage> {
                       child: ElevatedButton(
                         onPressed:
                             gamePhase == 'betting'
-                                ? () => showCallModal(context, id)
+                                ? () => _modalCall(context, id)
                                 : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
@@ -1178,8 +849,10 @@ class _PokerPageState extends State<PokerPage> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed:
-                            gamePhase != 'showdown' && gamePhase != 'all_in'
-                                ? () => handleCheck(id)
+                            gamePhase != 'showdown' &&
+                                    gamePhase != 'all_in' &&
+                                    gamePhase != 'betting'
+                                ? () => _check(id)
                                 : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -1205,7 +878,7 @@ class _PokerPageState extends State<PokerPage> {
                       child: ElevatedButton(
                         onPressed:
                             (gamePhase == 'betting' || gamePhase == 'called')
-                                ? () => showRaiseModal(context, id)
+                                ? () => _modalRaise(context, id)
                                 : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
@@ -1225,7 +898,7 @@ class _PokerPageState extends State<PokerPage> {
                       child: ElevatedButton(
                         onPressed:
                             gamePhase != 'betting' && gamePhase != 'showdown'
-                                ? () => showFoldConfirmation(id)
+                                ? () => _confirmFold(id)
                                 : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
@@ -1250,7 +923,7 @@ class _PokerPageState extends State<PokerPage> {
                   child: ElevatedButton(
                     onPressed:
                         (gamePhase == 'betting' || gamePhase == 'called')
-                            ? () => showAllInConfirmation(id)
+                            ? () => allInConfirm(id)
                             : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.purple,
