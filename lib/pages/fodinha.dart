@@ -3,7 +3,8 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'truco.dart';
 import 'blackjack.dart';
-import '../apostas.dart';
+import 'poker.dart';
+import '../logic/apostas.dart';
 
 class FodinhaPage extends StatefulWidget {
   const FodinhaPage({Key? key}) : super(key: key);
@@ -458,6 +459,16 @@ class _FodinhaPageState extends State<FodinhaPage> {
                   MaterialPageRoute(
                     builder: (context) => const BlackJackPage(),
                   ),
+                ),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.card_membership_outlined),
+            backgroundColor: Colors.orange,
+            label: 'Poker Clássico',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PokerPage()),
                 ),
           ),
         ],

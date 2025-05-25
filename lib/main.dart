@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pages/blackjack.dart';
 import 'pages/truco.dart';
+import 'pages/fodinha.dart';
+import 'pages/poker.dart';
 
 void main() {
   runApp(const TrucaralhoApp());
@@ -48,6 +50,26 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const BlackJackPage()),
+                );
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              child: const Text('Jogar Fodinha'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FodinhaPage()),
+                );
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              child: const Text('Jogar Poker Clássico'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PokerPage()),
                 );
               },
             ),

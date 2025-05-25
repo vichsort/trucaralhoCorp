@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'truco.dart';
+import 'blackjack.dart';
 import 'fodinha.dart';
-import 'poker.dart';
 import '../logic/apostas.dart';
 
-class BlackJackPage extends StatefulWidget {
-  const BlackJackPage({Key? key}) : super(key: key);
+class PokerPage extends StatefulWidget {
+  const PokerPage({Key? key}) : super(key: key);
 
   @override
-  State<BlackJackPage> createState() => _BlackJackPageState();
+  State<PokerPage> createState() => _PokerPageState();
 }
 
-class _BlackJackPageState extends State<BlackJackPage> {
+class _PokerPageState extends State<PokerPage> {
   int _leftCount = 0;
   int _leftWins = 0;
   int _rightCount = 0;
@@ -451,22 +451,24 @@ class _BlackJackPageState extends State<BlackJackPage> {
           ),
           SpeedDialChild(
             child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.blue,
-            label: 'Fodinha',
+            backgroundColor: Colors.red,
+            label: 'BlackJack',
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const FodinhaPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const BlackJackPage(),
+                  ),
                 ),
           ),
           SpeedDialChild(
             child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.orange,
-            label: 'Poker Clássico',
+            backgroundColor: Colors.blue,
+            label: 'BlackJack',
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PokerPage()),
+                  MaterialPageRoute(builder: (context) => const FodinhaPage()),
                 ),
           ),
         ],

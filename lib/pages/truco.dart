@@ -3,6 +3,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lottie/lottie.dart';
 import 'blackjack.dart';
 import 'fodinha.dart';
+import 'poker.dart';
 
 class TrucoPage extends StatefulWidget {
   const TrucoPage({Key? key}) : super(key: key);
@@ -524,6 +525,16 @@ class _TrucoPageState extends State<TrucoPage> {
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const FodinhaPage()),
+                ),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.card_membership_outlined),
+            backgroundColor: Colors.orange,
+            label: 'Poker Clássico',
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PokerPage()),
                 ),
           ),
         ],
