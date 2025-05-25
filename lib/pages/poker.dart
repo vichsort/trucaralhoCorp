@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'truco.dart';
-import 'blackjack.dart';
-import 'fodinha.dart';
 import '../logic/apostas.dart';
 import '../logic/fichas.dart';
 import '../logic/historico.dart';
+import '../logic/speedDial.dart';
 
 class PokerPage extends StatefulWidget {
   const PokerPage({Key? key}) : super(key: key);
@@ -796,7 +793,7 @@ class _PokerPageState extends State<PokerPage> {
             ),
         ],
       ),
-      floatingActionButton: actionDial(),
+      floatingActionButton: actionDial(context, "poker"),
     );
   }
 
@@ -805,8 +802,10 @@ class _PokerPageState extends State<PokerPage> {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1f1d1e), Color(0xFF383838)],
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
         ),
       ),
       child: Column(
@@ -821,7 +820,7 @@ class _PokerPageState extends State<PokerPage> {
             ),
           ),
           const SizedBox(height: 8),
-          Image(image: AssetImage(path), height: 150, width: 150),
+
           Text(
             label,
             style: const TextStyle(
@@ -830,10 +829,12 @@ class _PokerPageState extends State<PokerPage> {
               color: Color(0xFF534d36),
             ),
           ),
+          const SizedBox(height: 3),
+          Image(image: AssetImage(path), height: 150, width: 150),
           Text(
             '$wins',
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 30,
               fontWeight: FontWeight.bold,
               color: Colors.amber,
             ),
@@ -1021,53 +1022,6 @@ class _PokerPageState extends State<PokerPage> {
             ),
         ],
       ),
-    );
-  }
-
-  Widget actionDial() {
-    return SpeedDial(
-      openCloseDial: isDialOpen,
-      icon: Icons.add,
-      activeIcon: Icons.close,
-      backgroundColor: Colors.blue,
-      childPadding: EdgeInsets.all(5),
-      activeLabel: Text('Fechar'),
-      onOpen: () => isDialOpen.value = true,
-      onClose: () => isDialOpen.value = false,
-      closeManually: false,
-      renderOverlay: false,
-      children: [
-        SpeedDialChild(
-          child: const Icon(Icons.card_membership_outlined),
-          backgroundColor: Colors.deepPurple,
-          label: 'Truco Paulista',
-          onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const TrucoPage()),
-              ),
-        ),
-        SpeedDialChild(
-          child: const Icon(Icons.card_membership_outlined),
-          backgroundColor: Colors.red,
-          label: 'BlackJack',
-          onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const BlackJackPage()),
-              ),
-        ),
-        SpeedDialChild(
-          child: const Icon(Icons.card_membership_outlined),
-          backgroundColor: Colors.blue,
-          label: 'Fodinha',
-          onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FodinhaPage()),
-              ),
-        ),
-      ],
     );
   }
 }

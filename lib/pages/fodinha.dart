@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lottie/lottie.dart';
 import '../logic/historico.dart';
-import 'truco.dart';
-import 'blackjack.dart';
-import 'poker.dart';
+import '../logic/speedDial.dart';
 
 class FodinhaPage extends StatefulWidget {
   const FodinhaPage({Key? key}) : super(key: key);
@@ -331,52 +328,7 @@ class _FodinhaPageState extends State<FodinhaPage> {
             ),
         ],
       ),
-      floatingActionButton: SpeedDial(
-        openCloseDial: isDialOpen,
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        backgroundColor: Colors.blue,
-        childPadding: EdgeInsets.all(5),
-        activeLabel: Text('Fechar'),
-        onOpen: () => isDialOpen.value = true,
-        onClose: () => isDialOpen.value = false,
-        closeManually: false,
-        renderOverlay: false,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.deepPurple,
-            label: 'Truco Paulista',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TrucoPage()),
-                ),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.red,
-            label: 'BlackJack',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BlackJackPage(),
-                  ),
-                ),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.orange,
-            label: 'Poker Clássico',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PokerPage()),
-                ),
-          ),
-        ],
-      ),
+      floatingActionButton: actionDial(context, "fodinha"),
     );
   }
 }

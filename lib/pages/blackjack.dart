@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'truco.dart';
-import 'fodinha.dart';
-import 'poker.dart';
+import '../logic/speedDial.dart';
 import '../logic/apostas.dart';
 import '../logic/historico.dart';
 
@@ -436,50 +433,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
         ],
       ),
 
-      floatingActionButton: SpeedDial(
-        openCloseDial: isDialOpen,
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        backgroundColor: Colors.blue,
-        childPadding: EdgeInsets.all(5),
-        activeLabel: Text('Fechar'),
-        onOpen: () => isDialOpen.value = true,
-        onClose: () => isDialOpen.value = false,
-        closeManually: false,
-        renderOverlay: false,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.deepPurple,
-            label: 'Truco Paulista',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const TrucoPage()),
-                ),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.blue,
-            label: 'Fodinha',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FodinhaPage()),
-                ),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.orange,
-            label: 'Poker Clássico',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PokerPage()),
-                ),
-          ),
-        ],
-      ),
+      floatingActionButton: actionDial(context, "blackjack"),
     );
   }
 }

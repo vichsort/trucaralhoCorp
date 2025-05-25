@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:lottie/lottie.dart';
 import '../logic/historico.dart';
-import 'blackjack.dart';
-import 'fodinha.dart';
-import 'poker.dart';
+import '../logic/speedDial.dart';
 
 class TrucoPage extends StatefulWidget {
   const TrucoPage({Key? key}) : super(key: key);
@@ -509,52 +506,7 @@ class _TrucoPageState extends State<TrucoPage> {
         ],
       ),
 
-      floatingActionButton: SpeedDial(
-        openCloseDial: isDialOpen,
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        backgroundColor: Colors.blue,
-        childPadding: EdgeInsets.all(5),
-        activeLabel: Text('Fechar'),
-        onOpen: () => isDialOpen.value = true,
-        onClose: () => isDialOpen.value = false,
-        closeManually: false,
-        renderOverlay: false,
-        children: [
-          SpeedDialChild(
-            child: const Icon(Icons.card_giftcard),
-            backgroundColor: Colors.red,
-            label: 'BlackJack',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BlackJackPage(),
-                  ),
-                ),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.card_giftcard),
-            backgroundColor: Colors.blue,
-            label: 'Fodinha',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FodinhaPage()),
-                ),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.card_membership_outlined),
-            backgroundColor: Colors.orange,
-            label: 'Poker Clássico',
-            onTap:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PokerPage()),
-                ),
-          ),
-        ],
-      ),
+      floatingActionButton: actionDial(context, "truco"),
     );
   }
 }
