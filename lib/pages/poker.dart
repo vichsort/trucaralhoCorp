@@ -692,6 +692,35 @@ class _PokerPageState extends State<PokerPage> {
             onPressed: resetGame,
             tooltip: 'Novo Jogo',
           ),
+          IconButton(
+            icon: const Icon(Icons.question_mark_outlined),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Como jogar Poker?'),
+                    content: const Text(
+                      'Poker é um jogo de cartas onde o objetivo é ganhar fichas apostadas pelos jogadores. '
+                      'Os jogadores fazem apostas (BET), aumentar a aposta (RAISE), igualar a aposta (CALL/CHECK) ou desistir (FOLD). '
+                      'O jogo é jogado em rodadas, e o jogador que ganhar a rodada leva o pot. '
+                      'Os jogadores podem fazer apostas em fichas de diferentes valores, e o valor total da aposta é chamado de pot. '
+                      'Além disso, os jogadores podem fazer apostas adicionais (ALL IN) colocando todas as suas fichas na mesa. '
+                      'O jogo continua até que um jogador ganhe todas as fichas ou até que os jogadores decidam parar. ',
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('Fechar'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
       body: Stack(
@@ -977,7 +1006,10 @@ class _PokerPageState extends State<PokerPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.amber,
                     ),
-                    child: const Text('GANHOU'),
+                    child: Text(
+                      'Ganhou',
+                      style: TextStyle(fontSize: 20, color: Colors.black),
+                    ),
                   ),
                 ],
               ),
