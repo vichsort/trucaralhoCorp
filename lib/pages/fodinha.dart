@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:lottie/lottie.dart';
 import 'truco.dart';
 import 'blackjack.dart';
 import 'poker.dart';
-import '../logic/apostas.dart';
 
 class FodinhaPage extends StatefulWidget {
   const FodinhaPage({Key? key}) : super(key: key);
@@ -14,17 +13,18 @@ class FodinhaPage extends StatefulWidget {
 }
 
 class _FodinhaPageState extends State<FodinhaPage> {
-  int _leftCount = 0;
-  int _leftWins = 0;
-  int _rightCount = 0;
-  int _rightWins = 0;
-  int up = 2;
-  String carta = "2";
-  bool aceDetect = false;
+  int numberOfPlayers = 5;
+  int initialLives = 5;
+  List<int> vidas = [];
+  List<int> vitorias = [];
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
-  bool customeDialRoot = false;
-  bool extend = false;
   bool showWinAnimation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeGame();
+  }
 
   void showAnimation() {
     setState(() {
@@ -36,160 +36,97 @@ class _FodinhaPageState extends State<FodinhaPage> {
         setState(() {
           showWinAnimation = false;
         });
+        showRestartDialog(); // chama o diálogo depois da animação
       }
     });
   }
 
-  void _incrementLeft() {
-    setState(() {
-      _leftCount += up;
-      up = 2;
-      carta = "2";
-      if (_leftCount >= 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O convidado ganhou!'),
-            duration: const Duration(seconds: 1),
+  void showRestartDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Reiniciar Jogo?'),
+            content: const Text(
+              'Deseja reiniciar o jogo para uma nova partida?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // fecha o diálogo
+                },
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // fecha o diálogo
+                  _resetGame(); // reinicia o jogo
+                },
+                child: const Text('Reiniciar'),
+              ),
+            ],
           ),
-        );
-      } else if (_leftCount > 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O convidado passou de 21!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
+    );
   }
 
-  void _decreaseLeft() {
-    setState(() {
-      _leftCount--;
-      if (_leftCount <= 0) {
-        _leftCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
+  void _initializeGame() {
+    vidas = List.filled(numberOfPlayers, initialLives);
+    vitorias = List.filled(numberOfPlayers, 0);
   }
 
-  void _decreaseRight() {
-    setState(() {
-      _rightCount--;
-      if (_rightCount <= 0) {
-        _rightCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _incrementRight() {
-    setState(() {
-      _rightCount += up;
-      up = 2;
-      carta = "2";
-
-      if (_rightCount == 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O dealer ganhou!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      } else if (_rightCount > 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O dealer passou de 21!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _changeUp() {
-    setState(() {
-      Map<String, int> cartado = {
-        "2": 2,
-        "3": 3,
-        "4": 4,
-        "5": 5,
-        "6": 6,
-        "7": 7,
-        "8": 8,
-        "9": 9,
-        "10": 10,
-        "Rainha": 10,
-        "Valete": 10,
-        "Rei": 10,
-        "Ás": 11,
-      };
-
-      List<String> keys = cartado.keys.toList();
-      int currentIndex = keys.indexOf(carta);
-      currentIndex = (currentIndex + 1) % keys.length;
-      carta = keys[currentIndex];
-      up = cartado[carta]!;
-
-      up == 11 ? aceDetect = true : aceDetect = false;
-    });
-  }
-
-  void _reset() {
-    setState(() {
-      _leftCount = 0;
-      _rightCount = 0;
-      _leftWins = 0;
-      _rightWins = 0;
-      up = 2;
-      carta = "2";
-    });
-  }
-
-  void _aceVal(String lado, bool total) {
-    total ? up = 11 : up = 1;
-    if (lado == "esq") {
-      _incrementLeft();
-    } else {
-      _incrementRight();
+  void _incrementVida(int index) {
+    if (vidas[index] > 0) {
+      setState(() {
+        vidas[index]++;
+      });
     }
   }
 
-  void _openModal() {
-    showModalBottomSheet(context: context, builder: (context) => BetPage());
+  void _decrementVida(int index) {
+    if (vidas[index] > 0) {
+      setState(() {
+        vidas[index]--;
+      });
+      _checkForWinner();
+    }
+  }
+
+  void _checkForWinner() {
+    int vivos = vidas.where((v) => v > 0).length;
+    if (vivos == 1) {
+      int winnerIndex = vidas.indexWhere((v) => v > 0);
+      setState(() {
+        vitorias[winnerIndex]++;
+      });
+      showAnimation();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Jogador ${winnerIndex + 1} venceu!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _resetGame() {
+    setState(() {
+      vidas = List.filled(numberOfPlayers, initialLives);
+    });
+  }
+
+  void _setDefault() {
+    setState(() {
+      numberOfPlayers = 5;
+      initialLives = 5;
+      _initializeGame();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Blackaralho'),
+        title: const Text('Fodaralho'),
         centerTitle: true,
         leading: IconButton(
           onPressed: () {
@@ -198,10 +135,6 @@ class _FodinhaPageState extends State<FodinhaPage> {
           icon: Icon(Icons.arrow_back),
         ),
         actions: [
-          IconButton(
-            onPressed: _openModal,
-            icon: Icon(Icons.attach_money_sharp),
-          ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
             onPressed: () {
@@ -237,184 +170,145 @@ class _FodinhaPageState extends State<FodinhaPage> {
       ),
       body: Stack(
         children: [
-          Row(
+          Column(
             children: [
-              // você
-              Expanded(
-                child: GestureDetector(
-                  onTap: _incrementLeft,
-                  onLongPress: _decreaseLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Text('Jogadores:'),
+                        DropdownButton<int>(
+                          value: numberOfPlayers,
+                          items:
+                              List.generate(6, (index) => index + 2)
+                                  .map(
+                                    (e) => DropdownMenuItem(
+                                      child: Text('$e'),
+                                      value: e,
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              numberOfPlayers = value!;
+                              _initializeGame();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text('Vidas:'),
+                        DropdownButton<int>(
+                          value: initialLives,
+                          items:
+                              List.generate(10, (index) => index + 1)
+                                  .map(
+                                    (e) => DropdownMenuItem(
+                                      child: Text('$e'),
+                                      value: e,
+                                    ),
+                                  )
+                                  .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              initialLives = value!;
+                              _initializeGame();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    ElevatedButton(
+                      onPressed: _resetGame,
+                      child: const Icon(Icons.refresh),
+                    ),
+                    ElevatedButton(
+                      onPressed: _setDefault,
+                      child: const Icon(Icons.settings_backup_restore),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
                       ),
                     ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_leftCount',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          Text(
-                            "Convidado",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Image(
-                            image: AssetImage('images/paus.png'),
-                            height: 150,
-                            width: 150,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '$_leftWins',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
-                            ),
-                          ),
-                          if (aceDetect)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("esq", false);
-                                  },
-                                  child: Text('ACEITAR 1'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("esq", true);
-                                  },
-                                  child: Text('ACEITAR 11'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ),
-
-              // linha
-              Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ValueListenableBuilder<int>(
-                    valueListenable:
-                        BetController.instance.selectedValuesNotifier,
-                    builder: (context, value, child) {
-                      return Text('Na mesa: ${value * 2}');
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(onPressed: _changeUp, child: Text('$carta')),
-                  SizedBox(height: 20),
-                  ElevatedButton(onPressed: _reset, child: Icon(Icons.refresh)),
-                ],
-              ),
-
-              // casa
               Expanded(
-                child: GestureDetector(
-                  onTap: _incrementRight,
-                  onLongPress: _decreaseRight,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                      ),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_rightCount',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
+                child: ListView.builder(
+                  itemCount: numberOfPlayers,
+                  itemBuilder: (context, index) {
+                    bool isDead = vidas[index] == 0;
+
+                    Color? cardColor;
+                    if (isDead) {
+                      cardColor = Colors.grey[400];
+                    } else {
+                      switch (index % 3) {
+                        case 0:
+                          cardColor = Colors.blue[200];
+                          break;
+                        case 1:
+                          cardColor = Colors.cyan[200];
+                          break;
+                        case 2:
+                          cardColor = Colors.white;
+                          break;
+                      }
+                    }
+
+                    return Card(
+                      color: cardColor,
+                      margin: EdgeInsets.all(8),
+                      child: ListTile(
+                        leading: CircleAvatar(child: Text('${index + 1}')),
+                        title: Text(
+                          'Vidas: ${vidas[index]}',
+                          style: TextStyle(
+                            color: isDead ? Colors.grey : Colors.black,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Vitórias: ${vitorias[index]}',
+                          style: TextStyle(
+                            color: isDead ? Colors.grey : Colors.black,
+                          ),
+                        ),
+                        onTap: () {
+                          if (isDead) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Jogador ${index + 1} se fodeu!'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          } else {
+                            _decrementVida(index);
+                          }
+                        },
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.remove),
                               color: Colors.red,
+                              onPressed:
+                                  isDead ? null : () => _decrementVida(index),
                             ),
-                          ),
-                          Text(
-                            "Dealer",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
+                            IconButton(
+                              icon: Icon(Icons.add),
+                              color: Colors.deepPurple,
+                              onPressed:
+                                  isDead ? null : () => _incrementVida(index),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Image(
-                            image: AssetImage('images/copas.png'),
-                            height: 150,
-                            width: 150,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '$_rightWins',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
-                            ),
-                          ),
-                          if (aceDetect)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("dir", false);
-                                  },
-                                  child: Text('ACEITAR 1'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("dir", true);
-                                  },
-                                  child: Text('ACEITAR 11'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -430,7 +324,6 @@ class _FodinhaPageState extends State<FodinhaPage> {
             ),
         ],
       ),
-
       floatingActionButton: SpeedDial(
         openCloseDial: isDialOpen,
         icon: Icons.add,
