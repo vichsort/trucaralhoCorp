@@ -223,9 +223,12 @@ class _TrucoPageState extends State<TrucoPage> {
                     title: const Text('Como jogar Truco?'),
                     content: const Text(
                       'Truco é um jogo de cartas jogado com um baralho espanhol. '
-                      'O objetivo é ser o primeiro a alcançar 12 pontos. '
                       'Os jogadores podem pedir "truco" para aumentar a aposta. '
-                      'O jogo envolve blefes e estratégias para enganar o adversário.',
+                      'O jogo envolve blefes e estratégias para enganar o adversário. '
+                      'Um "Truco" faz com que a rodada passe a valer 3 pontos, o adversário pode'
+                      'aceitar ou correr, se correr o adversário ganha 1 ponto, se aceitar o truco a aposta aumenta para 6 pontos. '
+                      'O mesmo se aplica para 9 e 12 pontos. '
+                      'O jogo termina quando um jogador/dupla atinge 12 pontos.',
                     ),
                     actions: [
                       TextButton(
