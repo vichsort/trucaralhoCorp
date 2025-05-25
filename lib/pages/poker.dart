@@ -16,10 +16,10 @@ class PokerPage extends StatefulWidget {
 
 class _PokerPageState extends State<PokerPage> {
   // CALL - APOSTAR UMA FICHA CADA
+  // CHECK - SEGUIR A APOSTA
   // FOLD - DAR SUA FICHA PRO ADVERSÁRIO
   // RAISE - AUMENTAR APOSTA
   // ALL IN - COLOCAR TODAS AS FICHAS
-  // POT - VALOR DA APOSTA (SOMA DAS FICHAS DOS DOIS LADOS)
 
   // RESPOSTA PADRÃO ELSE: DO NOTHING
 
@@ -209,7 +209,7 @@ class _PokerPageState extends State<PokerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Blackaralho'),
+        title: const Text('Pokaralho'),
         centerTitle: true,
         leading: IconButton(
           onPressed: () {
@@ -476,7 +476,7 @@ class _PokerPageState extends State<PokerPage> {
           SpeedDialChild(
             child: const Icon(Icons.card_membership_outlined),
             backgroundColor: Colors.blue,
-            label: 'BlackJack',
+            label: 'Fodinha',
             onTap:
                 () => Navigator.push(
                   context,

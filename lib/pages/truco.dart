@@ -18,11 +18,11 @@ class _TrucoPageState extends State<TrucoPage> {
   int _rightCount = 0;
   int _rightWins = 0;
   int up = 1;
-  bool mostraBotaoDir = false;
-  bool hideDir = false;
-  bool mostraBotaoEsq = false;
-  bool hideEsq = false;
-  String pedido = "TRUCO!";
+  bool rightDetect = false;
+  bool hideRight = false;
+  bool leftDetect = false;
+  bool hideLeft = false;
+  String words = "TRUCO!";
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
   bool customeDialRoot = false;
   bool extend = false;
@@ -42,122 +42,119 @@ class _TrucoPageState extends State<TrucoPage> {
     });
   }
 
-  void _incrementLeft() {
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
+    );
+  }
+
+  void _increment(String side) {
     setState(() {
-      _leftCount += up;
-      _microReset();
-      if (_leftCount >= 12) {
+      if (side == "left") {
+        _leftCount += up;
+        _microReset();
+        if (_leftCount >= 12) {
+          _leftCount = 0;
+          _rightCount = 0;
+          _leftWins++;
+          showAnimation();
+          showMessage('Eles ganharam!');
+        }
+      } else {
+        _rightCount += up;
+        _microReset();
+        if (_rightCount >= 12) {
+          _leftCount = 0;
+          _rightCount = 0;
+          _rightWins++;
+          showAnimation();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Eles ganharam!'),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        }
+      }
+    });
+  }
+
+  void _decrease(String side) {
+    setState(() {
+      if (side == "left") {
+        _leftCount--;
+        if (_leftCount <= 0) {
+          _leftCount = 0;
+          showMessage('Não pode diminuir mais!');
+        }
+      } else {
+        _rightCount--;
+        if (_rightCount <= 0) {
+          _rightCount = 0;
+          showMessage('Não pode diminuir mais!');
+        }
+      }
+    });
+  }
+
+  void _resetSide(String side) {
+    setState(() {
+      if (side == "left") {
         _leftCount = 0;
+      } else {
         _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Eles ganharam!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
       }
     });
   }
 
-  void _decreaseLeft() {
+  void _changeUp(String side, bool trucado) {
     setState(() {
-      _leftCount--;
-      if (_leftCount <= 0) {
-        _leftCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _decreaseRight() {
-    setState(() {
-      _rightCount--;
-      if (_rightCount <= 0) {
-        _rightCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _incrementRight() {
-    setState(() {
-      _rightCount += up;
-      _microReset();
-      if (_rightCount >= 12) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Eles ganharam!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _changeUp(String lado, bool trucado) {
-    setState(() {
-      final pedidos = ["TRUCO!", "SEIS!", "NOVE!", "DOZE!"];
+      final wordss = ["TRUCO!", "SEIS!", "NOVE!", "DOZE!"];
       final ups = [1, 3, 6, 9, 12];
 
-      int currentIndex = pedidos.indexOf(pedido);
+      int currentIndex = wordss.indexOf(words);
 
       // Se for trucado aumenta a aposta
       if (trucado) {
-        if (currentIndex < pedidos.length - 1) {
-          // mostra aceitar/correr no outro lado
-          if (lado == "esq") {
-            mostraBotaoDir = true;
-            mostraBotaoEsq = false;
-            hideEsq = true;
-            hideDir = false;
+        if (currentIndex < wordss.length - 1) {
+          // mostra aceitar/correr no outro side
+          if (side == "left") {
+            rightDetect = true;
+            leftDetect = false;
+            hideLeft = true;
+            hideRight = false;
           } else {
-            mostraBotaoEsq = true;
-            mostraBotaoDir = false;
-            hideDir = true;
-            hideEsq = false;
+            leftDetect = true;
+            rightDetect = false;
+            hideRight = true;
+            hideLeft = false;
           }
           up = ups[currentIndex + 1];
-          pedido = pedidos[currentIndex + 1];
+          words = wordss[currentIndex + 1];
         } else {
           // não sobe depois de doze
           up = 12;
-          pedido = pedidos.last;
-          mostraBotaoDir = false;
-          mostraBotaoEsq = false;
-          hideDir = true;
-          hideEsq = true;
+          words = wordss.last;
+          rightDetect = false;
+          leftDetect = false;
+          hideRight = true;
+          hideLeft = true;
         }
         return;
       }
 
       // este loop refere quando se aceita o trucado
       // dai escondemos os aceitar/correr para pode aumentar a aposta
-      if (lado == "esq") {
-        mostraBotaoDir = false;
-        mostraBotaoEsq = false;
-        hideDir = true;
-        hideEsq = false;
+      if (side == "left") {
+        rightDetect = false;
+        leftDetect = false;
+        hideRight = true;
+        hideLeft = false;
       } else {
-        mostraBotaoEsq = false;
-        mostraBotaoDir = false;
-        hideEsq = true;
-        hideDir = false;
+        leftDetect = false;
+        rightDetect = false;
+        hideLeft = true;
+        hideRight = false;
       }
     });
   }
@@ -172,45 +169,33 @@ class _TrucoPageState extends State<TrucoPage> {
     });
   }
 
-  void _correr(lado) {
+  void _correr(side) {
     setState(() {
-      if (lado == "esq") {
+      if (side == "left") {
         _rightCount += up;
-        mostraBotaoEsq = false;
+        leftDetect = false;
       } else {
         _leftCount += up;
-        mostraBotaoDir = false;
+        rightDetect = false;
       }
 
       if (_leftCount >= 12) {
-        _incrementLeft();
+        _increment("left");
       } else if (_rightCount >= 12) {
-        _incrementRight();
+        _increment("right");
       }
       _microReset();
-    });
-  }
-
-  void _resetLeft() {
-    setState(() {
-      _leftCount = 0;
-    });
-  }
-
-  void _resetRight() {
-    setState(() {
-      _rightCount = 0;
     });
   }
 
   void _microReset() {
     setState(() {
       up = 1;
-      pedido = "TRUCO!";
-      hideDir = false;
-      hideEsq = false;
-      mostraBotaoDir = false;
-      mostraBotaoEsq = false;
+      words = "TRUCO!";
+      hideRight = false;
+      hideLeft = false;
+      rightDetect = false;
+      leftDetect = false;
     });
   }
 
@@ -231,7 +216,6 @@ class _TrucoPageState extends State<TrucoPage> {
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
             onPressed: () {
-              // how to play 'em games (trooco)
               showDialog(
                 context: context,
                 builder: (context) {
@@ -265,9 +249,9 @@ class _TrucoPageState extends State<TrucoPage> {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: _incrementLeft,
-                  onDoubleTap: _decreaseLeft,
-                  onLongPress: _resetLeft,
+                  onTap: () => _increment("left"),
+                  onDoubleTap: () => _decrease("left"),
+                  onLongPress: () => _resetSide("left"),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -314,7 +298,7 @@ class _TrucoPageState extends State<TrucoPage> {
 
                           SizedBox(height: 100),
 
-                          if (mostraBotaoEsq == false && hideEsq == false)
+                          if (leftDetect == false && hideLeft == false)
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
@@ -328,18 +312,18 @@ class _TrucoPageState extends State<TrucoPage> {
                                 ),
                               ),
                               onPressed: () {
-                                _changeUp("esq", true);
+                                _changeUp("left", true);
                               },
-                              child: Text(pedido),
+                              child: Text(words),
                             ),
 
-                          if (mostraBotaoEsq)
+                          if (leftDetect)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    _correr("esq");
+                                    _correr("left");
                                   },
                                   child: Text('CORRER'),
                                   style: ElevatedButton.styleFrom(
@@ -349,7 +333,7 @@ class _TrucoPageState extends State<TrucoPage> {
                                 SizedBox(width: 20),
                                 ElevatedButton(
                                   onPressed: () {
-                                    _changeUp("esq", false);
+                                    _changeUp("left", false);
                                   },
                                   child: Text('ACEITAR'),
                                   style: ElevatedButton.styleFrom(
@@ -379,9 +363,9 @@ class _TrucoPageState extends State<TrucoPage> {
               // eles
               Expanded(
                 child: GestureDetector(
-                  onTap: _incrementRight,
-                  onDoubleTap: _decreaseRight,
-                  onLongPress: _resetRight,
+                  onTap: () => _increment("right"),
+                  onDoubleTap: () => _decrease("right"),
+                  onLongPress: () => _resetSide("right"),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -428,7 +412,7 @@ class _TrucoPageState extends State<TrucoPage> {
 
                           SizedBox(height: 100),
 
-                          if (mostraBotaoDir == false && hideDir == false)
+                          if (rightDetect == false && hideRight == false)
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.white,
@@ -442,18 +426,18 @@ class _TrucoPageState extends State<TrucoPage> {
                                 ),
                               ),
                               onPressed: () {
-                                _changeUp("dir", true);
+                                _changeUp("right", true);
                               },
-                              child: Text(pedido),
+                              child: Text(words),
                             ),
 
-                          if (mostraBotaoDir)
+                          if (rightDetect)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    _correr("dir");
+                                    _correr("right");
                                   },
                                   child: Text('CORRER'),
                                   style: ElevatedButton.styleFrom(
@@ -463,7 +447,7 @@ class _TrucoPageState extends State<TrucoPage> {
                                 SizedBox(width: 20),
                                 ElevatedButton(
                                   onPressed: () {
-                                    _changeUp("dir", false);
+                                    _changeUp("right", false);
                                   },
                                   child: Text('ACEITAR'),
                                   style: ElevatedButton.styleFrom(

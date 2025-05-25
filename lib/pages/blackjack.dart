@@ -26,6 +26,12 @@ class _BlackJackPageState extends State<BlackJackPage> {
   bool extend = false;
   bool showWinAnimation = false;
 
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
+    );
+  }
+
   void showAnimation() {
     setState(() {
       showWinAnimation = true;
@@ -40,95 +46,61 @@ class _BlackJackPageState extends State<BlackJackPage> {
     });
   }
 
-  void _incrementLeft() {
+  _increment(String side) {
     setState(() {
-      _leftCount += up;
-      up = 2;
-      carta = "2";
-      if (_leftCount >= 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O convidado ganhou!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      } else if (_leftCount > 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O convidado passou de 21!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
+      if (side == "left") {
+        _leftCount += up;
+        up = 2;
+        carta = "2";
+        if (_leftCount == 21) {
+          _leftCount = 0;
+          _rightCount = 0;
+          _leftWins++;
+          showAnimation();
+          showMessage('O convidado ganhou!');
+        } else if (_leftCount > 21) {
+          _leftCount = 0;
+          _rightCount = 0;
+          _rightWins++;
+          showAnimation();
+          showMessage('O convidado passou de 21!');
+        }
+      } else {
+        _rightCount += up;
+        up = 2;
+        carta = "2";
+
+        if (_rightCount == 21) {
+          _leftCount = 0;
+          _rightCount = 0;
+          _rightWins++;
+          showAnimation();
+          showMessage('O dealer ganhou!');
+        } else if (_rightCount > 21) {
+          _leftCount = 0;
+          _rightCount = 0;
+          _leftWins++;
+          showAnimation();
+          showMessage('O dealer passou de 21!');
+        }
       }
     });
   }
 
-  void _decreaseLeft() {
+  void _decrease(String side) {
     setState(() {
-      _leftCount--;
-      if (_leftCount <= 0) {
-        _leftCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _decreaseRight() {
-    setState(() {
-      _rightCount--;
-      if (_rightCount <= 0) {
-        _rightCount = 0;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Não pode diminuir mais!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    });
-  }
-
-  void _incrementRight() {
-    setState(() {
-      _rightCount += up;
-      up = 2;
-      carta = "2";
-
-      if (_rightCount == 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _rightWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O dealer ganhou!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      } else if (_rightCount > 21) {
-        _leftCount = 0;
-        _rightCount = 0;
-        _leftWins++;
-        showAnimation();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('O dealer passou de 21!'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
+      if (side == "left") {
+        _leftCount--;
+        if (_leftCount <= 0) {
+          _leftCount = 0;
+          showMessage('Não pode diminuir mais!');
+        }
+      } else {
+        _rightCount--;
+        if (_rightCount <= 0) {
+          _rightCount = 0;
+          showMessage('Não pode diminuir mais!');
+        }
       }
     });
   }
@@ -172,12 +144,12 @@ class _BlackJackPageState extends State<BlackJackPage> {
     });
   }
 
-  void _aceVal(String lado, bool total) {
+  void _aceVal(String side, bool total) {
     total ? up = 11 : up = 1;
-    if (lado == "esq") {
-      _incrementLeft();
+    if (side == "left") {
+      _increment("left");
     } else {
-      _incrementRight();
+      _increment("right");
     }
   }
 
@@ -238,8 +210,8 @@ class _BlackJackPageState extends State<BlackJackPage> {
               // você
               Expanded(
                 child: GestureDetector(
-                  onTap: _incrementLeft,
-                  onLongPress: _decreaseLeft,
+                  onTap: () => _increment("left"),
+                  onLongPress: () => _decrease("left"),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -289,7 +261,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    _aceVal("esq", false);
+                                    _aceVal("left", false);
                                   },
                                   child: Text('ACEITAR 1'),
                                   style: ElevatedButton.styleFrom(
@@ -299,7 +271,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
                                 SizedBox(width: 20),
                                 ElevatedButton(
                                   onPressed: () {
-                                    _aceVal("esq", true);
+                                    _aceVal("left", true);
                                   },
                                   child: Text('ACEITAR 11'),
                                   style: ElevatedButton.styleFrom(
@@ -337,8 +309,8 @@ class _BlackJackPageState extends State<BlackJackPage> {
               // casa
               Expanded(
                 child: GestureDetector(
-                  onTap: _incrementRight,
-                  onLongPress: _decreaseRight,
+                  onTap: () => _increment("right"),
+                  onLongPress: () => _decrease("right"),
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
