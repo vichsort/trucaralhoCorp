@@ -49,7 +49,7 @@ Widget trucoPlayer(
               const SizedBox(height: 8),
               Image(
                 image: AssetImage(
-                  '${side == "left" ? "images/paus.png" : "images/copas.png"}',
+                  '${side == "left" ? "assets/images/paus.png" : "assets/images/copas.png"}',
                 ),
                 height: 150,
                 width: 150,
@@ -160,7 +160,9 @@ Widget blackJackPlayer(
               const SizedBox(height: 8),
               Image(
                 image: AssetImage(
-                  side == "left" ? "images/paus.png" : "images/copas.png",
+                  side == "left"
+                      ? "assets/images/paus.png"
+                      : "assets/images/copas.png",
                 ),
                 height: 150,
                 width: 150,
@@ -258,7 +260,7 @@ Widget pokerPlayer(
         const SizedBox(height: 3),
         Image(
           image: AssetImage(
-            "${id == "left" ? "images/paus.png" : "images/copas.png"}",
+            "${id == "left" ? "assets/images/paus.png" : "assets/images/copas.png"}",
           ),
           height: 150,
           width: 150,
