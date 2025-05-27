@@ -19,9 +19,6 @@ class _BlackJackPageState extends State<BlackJackPage> {
   int up = 2;
   String carta = "2";
   bool aceDetect = false;
-  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
-  bool customeDialRoot = false;
-  bool extend = false;
   bool showWinAnimation = false;
 
   void showMessage(String message) {

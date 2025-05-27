@@ -17,17 +17,15 @@ class _PokerPageState extends State<PokerPage> {
   int rightInTable = 0;
   int leftWins = 0;
   int rightWins = 0;
-  int leftValue = 1000; // Valor inicial dos jogadores
-  int rightValue = 1000; // Valor inicial dos jogadores
+  int leftValue = 1000;
+  int rightValue = 1000;
   bool actionDetect = false;
   bool showWinAnimation = false;
   int pot = 0;
-  int currentBet = 0; // Aposta atual na mesa
-  String gamePhase = 'betting'; // 'betting', 'called', 'showdown'
-  String lastAction = ''; // Para mostrar a última ação
-  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  int currentBet = 0;
+  String gamePhase = 'betting';
+  String lastAction = '';
 
-  // Exibir animação de vitória
   void showAnimation() {
     setState(() => showWinAnimation = true);
     Future.delayed(const Duration(seconds: 2), () {
@@ -35,157 +33,20 @@ class _PokerPageState extends State<PokerPage> {
     });
   }
 
-  // CALL - Apostar fichas
   Future<void> _modalCall(BuildContext context, String side) async {
-    final controller = BetControllerManager.instance.getController(side);
-
     await showModalBottomSheet(
       context: context,
       builder: (_) {
-        final indices = Map<int, int>.from(controller.selectedIndices);
-        int betAmount = controller.selectedValues;
-
-        return StatefulBuilder(
-          builder:
-              (_, setState) => Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'CALL - Fazer Aposta',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'Seu saldo: \$${side == 'left' ? leftValue : rightValue}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Text(
-                    'Valor da aposta: \$${betAmount}',
-                    style: TextStyle(fontSize: 20, color: Colors.blue),
-                  ),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 3 / 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                      itemCount: fichas.length,
-                      itemBuilder: (_, index) {
-                        final ficha = fichas[index];
-                        int count = indices[index] ?? 0;
-                        return Card(
-                          color:
-                              count > 0 ? Colors.blue[900] : Colors.grey[700],
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                ficha.caminho_imagem,
-                                height: 60,
-                                fit: BoxFit.contain,
-                              ),
-                              Text(
-                                ficha.nome,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text('Valor: \$${ficha.valor}'),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove),
-                                    color: Colors.white,
-                                    onPressed:
-                                        count > 0
-                                            ? () {
-                                              setState(() {
-                                                indices[index] =
-                                                    (indices[index]! > 1)
-                                                        ? indices[index]! - 1
-                                                        : 0;
-                                                betAmount -= ficha.valor;
-                                                controller.save(
-                                                  indices,
-                                                  betAmount,
-                                                );
-                                              });
-                                            }
-                                            : null,
-                                  ),
-                                  Text(
-                                    '$count',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add),
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      int playerValue =
-                                          side == 'left'
-                                              ? leftValue
-                                              : rightValue;
-                                      if (betAmount + ficha.valor <=
-                                          playerValue) {
-                                        setState(() {
-                                          indices[index] =
-                                              (indices[index] ?? 0) + 1;
-                                          betAmount += ficha.valor;
-                                          controller.save(indices, betAmount);
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed:
-                                betAmount > 0
-                                    ? () => handleCall(side, betAmount)
-                                    : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              padding: EdgeInsets.symmetric(vertical: 15),
-                            ),
-                            child: Text(
-                              'CALL - Apostar \$${betAmount}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+        return PokerCall(
+          (int betAmount) => handleCall(side, betAmount),
+          side,
+          leftValue,
+          rightValue,
         );
       },
     );
   }
 
-  // Processar CALL
   void handleCall(String side, int amount) {
     setState(() {
       if (side == 'left') {
@@ -306,168 +167,21 @@ class _PokerPageState extends State<PokerPage> {
 
   // RAISE - Aumentar aposta
   Future<void> _modalRaise(BuildContext context, String side) async {
-    final controller = BetControllerManager.instance.getController(
-      '${side}_raise',
-    );
-
     await showModalBottomSheet(
       context: context,
       builder: (_) {
-        final indices = Map<int, int>.from(controller.selectedIndices);
-        int raiseAmount = controller.selectedValues;
-
-        return StatefulBuilder(
-          builder:
-              (_, setState) => Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          'RAISE - Aumentar Aposta',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Aposta atual: ${currentBet}',
-                          style: TextStyle(fontSize: 18, color: Colors.yellow),
-                        ),
-                        Text(
-                          'Seu saldo: \$${side == 'left' ? leftValue : rightValue}',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        Text(
-                          'Valor do raise: \$${raiseAmount}',
-                          style: TextStyle(fontSize: 20, color: Colors.orange),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 3 / 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                      itemCount: fichas.length,
-                      itemBuilder: (_, index) {
-                        final ficha = fichas[index];
-                        int count = indices[index] ?? 0;
-                        return Card(
-                          color:
-                              count > 0 ? Colors.orange[900] : Colors.grey[700],
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                ficha.caminho_imagem,
-                                height: 60,
-                                fit: BoxFit.contain,
-                              ),
-                              Text(
-                                ficha.nome,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text('Valor: \$${ficha.valor}'),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove),
-                                    color: Colors.white,
-                                    onPressed:
-                                        count > 0
-                                            ? () {
-                                              setState(() {
-                                                indices[index] =
-                                                    (indices[index]! > 1)
-                                                        ? indices[index]! - 1
-                                                        : 0;
-                                                raiseAmount -= ficha.valor;
-                                                controller.save(
-                                                  indices,
-                                                  raiseAmount,
-                                                );
-                                              });
-                                            }
-                                            : null,
-                                  ),
-                                  Text(
-                                    '$count',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add),
-                                    color: Colors.white,
-                                    onPressed: () {
-                                      int playerValue =
-                                          side == 'left'
-                                              ? leftValue
-                                              : rightValue;
-                                      int totalCost =
-                                          currentBet +
-                                          raiseAmount +
-                                          ficha.valor;
-                                      if (totalCost <= playerValue) {
-                                        setState(() {
-                                          indices[index] =
-                                              (indices[index] ?? 0) + 1;
-                                          raiseAmount += ficha.valor;
-                                          controller.save(indices, raiseAmount);
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed:
-                                raiseAmount > 0
-                                    ? () => _raise(side, raiseAmount)
-                                    : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              padding: EdgeInsets.symmetric(vertical: 15),
-                            ),
-                            child: Text(
-                              'RAISE +${raiseAmount} (Total: ${currentBet + raiseAmount})',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+        return PokerRaise(
+          (int raiseAmount) => handleRaise(side, raiseAmount),
+          currentBet,
+          side,
+          leftValue,
+          rightValue,
         );
       },
     );
   }
 
-  void _raise(String side, int raiseAmount) {
+  void handleRaise(String side, int raiseAmount) {
     int totalBet = currentBet + raiseAmount;
     setState(() {
       if (side == 'left') {
@@ -482,7 +196,7 @@ class _PokerPageState extends State<PokerPage> {
       gamePhase = 'raised';
       lastAction =
           '${side == 'left' ? 'Convidado' : 'Casa'} fez RAISE para \$${totalBet}';
-      actionDetect = false; // Oponente precisa responder
+      actionDetect = false;
     });
     Navigator.pop(context);
 
@@ -495,15 +209,12 @@ class _PokerPageState extends State<PokerPage> {
     );
   }
 
-  // ALL IN - Colocar todas as fichas (10 fichas do maior tipo)
   Future<void> allInConfirm(String side) async {
     int playerValue = side == 'left' ? leftValue : rightValue;
 
-    // Encontra qual é maior ficha possivel
     var fichasDisponiveis =
         fichas.where((f) => f.valor * 10 <= playerValue).toList();
     if (fichasDisponiveis.isEmpty) {
-      // Se não consegue nem 10 da menor ficha, usa tudo que tem kkkkkk
       return showDialog<void>(
         context: context,
         builder:
@@ -523,7 +234,6 @@ class _PokerPageState extends State<PokerPage> {
     }
 
     var fichaMaior = fichasDisponiveis.reduce(
-      // retorna sempre o maior
       (a, b) => a.valor > b.valor ? a : b,
     );
     int allInAmount = fichaMaior.valor * 10;
@@ -591,7 +301,6 @@ class _PokerPageState extends State<PokerPage> {
     });
   }
 
-  // ACCEPT - Aceitar raise ou all in
   void _accept(String side) {
     int opponentBet = side == 'left' ? rightInTable : leftInTable;
     int playerValue = side == 'left' ? leftValue : rightValue;
@@ -639,7 +348,6 @@ class _PokerPageState extends State<PokerPage> {
             '${winner == 'left' ? ' O Convidado' : ' A Casa'} levou a rodada valendo \$$pot',
       );
 
-      // Reset do jogo
       pot = 0;
       currentBet = 0;
       leftInTable = 0;
@@ -649,13 +357,12 @@ class _PokerPageState extends State<PokerPage> {
       lastAction =
           '${winner == 'left' ? 'Convidado' : 'Casa'} ganhou a rodada!';
 
-      // Limpar controllers
       BetControllerManager.instance.getController('left').clear();
       BetControllerManager.instance.getController('right').clear();
-      BetControllerManager.instance.getController('left_raise').clear();
-      BetControllerManager.instance.getController('right_raise').clear();
-      BetControllerManager.instance.getController('left_raise').clear();
-      BetControllerManager.instance.getController('right_raise').clear();
+      BetControllerManager.instance.getController('leftraise').clear();
+      BetControllerManager.instance.getController('rightraise').clear();
+      BetControllerManager.instance.getController('leftraise').clear();
+      BetControllerManager.instance.getController('rightraise').clear();
 
       showAnimation();
     });
@@ -671,7 +378,6 @@ class _PokerPageState extends State<PokerPage> {
       gamePhase = 'betting';
       lastAction = 'Novo jogo iniciado';
 
-      // Limpar controllers
       BetControllerManager.instance.getController('left').clear();
       BetControllerManager.instance.getController('right').clear();
     });

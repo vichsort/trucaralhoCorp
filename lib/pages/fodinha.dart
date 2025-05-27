@@ -15,7 +15,6 @@ class _FodinhaPageState extends State<FodinhaPage> {
   int initialLives = 5;
   List<int> vidas = [];
   List<int> vitorias = [];
-  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
   bool showWinAnimation = false;
 
   @override
