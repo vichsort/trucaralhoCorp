@@ -131,7 +131,7 @@ class _FodinhaPageState extends State<FodinhaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fodaralho'),
+        title: const Text('Trucaralho | Fodinha'),
         centerTitle: true,
         leading: IconButton(
           onPressed: () {

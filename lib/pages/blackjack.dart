@@ -188,7 +188,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Blackaralho'),
+        title: const Text('Trucaralho | BlackJack'),
         centerTitle: true,
         leading: IconButton(
           onPressed: () {

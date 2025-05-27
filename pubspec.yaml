@@ -1,5 +1,5 @@
-name: trucoo
-description: "A new Flutter project."
+name: Trucaralho
+description: "Trucando seu baralho até na casa do carvalho."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_speed_dial: ^7.0.0
   lottie: ^3.3.1
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:

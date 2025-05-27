@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import '../logic/apostas.dart';
 import '../logic/fichas.dart';
 import '../logic/historico.dart';
@@ -108,7 +107,6 @@ class _PokerPageState extends State<PokerPage> {
     }
   }
 
-  // FOLD - Desistir e dar fichas ao oponente
   Future<void> _confirmFold(String side) async {
     return showDialog<void>(
       context: context,
@@ -389,7 +387,7 @@ class _PokerPageState extends State<PokerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pokaralho'),
+        title: const Text('Trucaralho | Poker'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -412,7 +410,6 @@ class _PokerPageState extends State<PokerPage> {
         children: [
           Column(
             children: [
-              // Status do jogo
               Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(16),
@@ -491,13 +488,6 @@ class _PokerPageState extends State<PokerPage> {
               ),
             ],
           ),
-          if (showWinAnimation)
-            Center(
-              child: Lottie.network(
-                'https://lottie.host/0e03df0c-be10-4f75-835f-0e5c6715129d/vw87WFVoOy.json',
-                height: 300,
-              ),
-            ),
         ],
       ),
       floatingActionButton: actionDial(context, "poker"),
