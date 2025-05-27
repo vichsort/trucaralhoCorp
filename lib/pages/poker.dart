@@ -4,6 +4,8 @@ import '../logic/apostas.dart';
 import '../logic/fichas.dart';
 import '../logic/historico.dart';
 import '../logic/speedDial.dart';
+import '../logic/player.dart';
+import '../logic/howTo.dart';
 
 class PokerPage extends StatefulWidget {
   const PokerPage({Key? key}) : super(key: key);
@@ -402,32 +404,7 @@ class _PokerPageState extends State<PokerPage> {
           ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Como jogar Poker?'),
-                    content: const Text(
-                      'Poker é um jogo de cartas onde o objetivo é ganhar fichas apostadas pelos jogadores. '
-                      'Os jogadores fazem apostas (BET), aumentar a aposta (RAISE), igualar a aposta (CALL/CHECK) ou desistir (FOLD). '
-                      'O jogo é jogado em rodadas, e o jogador que ganhar a rodada leva o pot. '
-                      'Os jogadores podem fazer apostas em fichas de diferentes valores, e o valor total da aposta é chamado de pot. '
-                      'Além disso, os jogadores podem fazer apostas adicionais (ALL IN) colocando todas as suas fichas na mesa. '
-                      'O jogo continua até que um jogador ganhe todas as fichas ou até que os jogadores decidam parar. ',
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Fechar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
+            onPressed: () => PokerDialog(),
           ),
         ],
       ),
@@ -467,22 +444,46 @@ class _PokerPageState extends State<PokerPage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: playerArea(
-                        'left',
-                        'images/paus.png',
+                      child: pokerPlayer(
+                        context,
+                        _modalCall,
+                        _check,
+                        _modalRaise,
+                        _confirmFold,
+                        allInConfirm,
+                        _accept,
+                        _win,
+                        "left",
+                        leftInTable,
                         leftValue,
                         leftWins,
-                        'Convidado',
+                        gamePhase,
+                        currentBet,
+                        rightInTable,
+                        leftInTable,
+                        actionDetect,
                       ),
                     ),
                     Container(width: 2, color: Colors.white24),
                     Expanded(
-                      child: playerArea(
-                        'right',
-                        'images/copas.png',
+                      child: pokerPlayer(
+                        context,
+                        _modalCall,
+                        _check,
+                        _modalRaise,
+                        _confirmFold,
+                        allInConfirm,
+                        _accept,
+                        _win,
+                        "right",
+                        rightInTable,
                         rightValue,
                         rightWins,
-                        'Casa',
+                        gamePhase,
+                        currentBet,
+                        rightInTable,
+                        leftInTable,
+                        actionDetect,
                       ),
                     ),
                   ],
@@ -500,234 +501,6 @@ class _PokerPageState extends State<PokerPage> {
         ],
       ),
       floatingActionButton: actionDial(context, "poker"),
-    );
-  }
-
-  Widget playerArea(String id, String path, int value, int wins, String label) {
-    int inTable = id == 'left' ? leftInTable : rightInTable;
-
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '\$${value}',
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF534d36),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF534d36),
-            ),
-          ),
-          const SizedBox(height: 3),
-          Image(image: AssetImage(path), height: 150, width: 150),
-          Text(
-            '$wins',
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Colors.amber,
-            ),
-          ),
-          if (inTable > 0)
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 8),
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.blue[700],
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Text(
-                'Na mesa: \$${inTable}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-          // Botões de ação
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                // Linha 1: CALL e CHECK
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            gamePhase == 'betting'
-                                ? () => _modalCall(context, id)
-                                : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          'CALL',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            gamePhase != 'showdown' &&
-                                    gamePhase != 'all_in' &&
-                                    gamePhase != 'betting'
-                                ? () => _check(id)
-                                : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          currentBet == 0 ? 'CHECK' : 'CHECK',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-
-                // Linha 2: RAISE e FOLD
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            (gamePhase == 'betting' || gamePhase == 'called')
-                                ? () => _modalRaise(context, id)
-                                : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          'RAISE',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            gamePhase != 'betting' && gamePhase != 'showdown'
-                                ? () => _confirmFold(id)
-                                : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          'FOLD',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-
-                // Linha 3: ALL IN
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed:
-                        (gamePhase == 'betting' || gamePhase == 'called')
-                            ? () => allInConfirm(id)
-                            : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: Text(
-                      'ALL IN',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                // Botão ACCEPT (aparece quando oponente fez raise ou all in)
-                if (gamePhase == 'raised' || gamePhase == 'all_in')
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => _accept(id),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: Text(
-                          "ACCEPT (\$${id == 'left' ? rightInTable : leftInTable})",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Botões de resultado (quando actionDetect é true)
-          if (actionDetect)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => _win(id),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
-                    ),
-                    child: Text(
-                      'Ganhou',
-                      style: TextStyle(fontSize: 20, color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../logic/historico.dart';
 import '../logic/speedDial.dart';
+import '../logic/player.dart';
+import '../logic/howTo.dart';
 
 class TrucoPage extends StatefulWidget {
   const TrucoPage({Key? key}) : super(key: key);
@@ -234,33 +236,7 @@ class _TrucoPageState extends State<TrucoPage> {
           ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Como jogar Truco?'),
-                    content: const Text(
-                      'Truco é um jogo de cartas jogado com um baralho espanhol. '
-                      'Os jogadores podem pedir "truco" para aumentar a aposta. '
-                      'O jogo envolve blefes e estratégias para enganar o adversário. '
-                      'Um "Truco" faz com que a rodada passe a valer 3 pontos, o adversário pode'
-                      'aceitar ou correr, se correr o adversário ganha 1 ponto, se aceitar o truco a aposta aumenta para 6 pontos. '
-                      'O mesmo se aplica para 9 e 12 pontos. '
-                      'O jogo termina quando um jogador/dupla atinge 12 pontos.',
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Fechar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
+            onPressed: () => TrucoDialog(),
             tooltip: 'Como jogar',
           ),
         ],
@@ -270,106 +246,18 @@ class _TrucoPageState extends State<TrucoPage> {
           // nos
           Row(
             children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _increment("left"),
-                  onDoubleTap: () => _decrease("left"),
-                  onLongPress: () => _resetSide("left"),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                      ),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_leftCount',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          Text(
-                            "Nós",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Image(
-                            image: AssetImage('images/paus.png'),
-                            height: 150,
-                            width: 150,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '$_leftWins',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
-                            ),
-                          ),
-
-                          SizedBox(height: 100),
-
-                          if (leftDetect == false && hideLeft == false)
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Color(0xFF1f1d1e),
-                                minimumSize: Size(120, 66),
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(12),
-                                  ),
-                                ),
-                              ),
-                              onPressed: () {
-                                _changeUp("left", true);
-                              },
-                              child: Text(words),
-                            ),
-
-                          if (leftDetect)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _correr("left");
-                                  },
-                                  child: Text('CORRER'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _changeUp("left", false);
-                                  },
-                                  child: Text('ACEITAR'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              trucoPlayer(
+                _increment,
+                _decrease,
+                _resetSide,
+                "left",
+                _leftCount,
+                _leftWins,
+                leftDetect,
+                hideLeft,
+                _changeUp,
+                words,
+                _correr,
               ),
 
               // Meio
@@ -383,113 +271,18 @@ class _TrucoPageState extends State<TrucoPage> {
                 ],
               ),
 
-              // eles
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _increment("right"),
-                  onDoubleTap: () => _decrease("right"),
-                  onLongPress: () => _resetSide("right"),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                      ),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_rightCount',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                          Text(
-                            "Eles",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Image(
-                            image: AssetImage('images/copas.png'),
-                            height: 150,
-                            width: 150,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '$_rightWins',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
-                            ),
-                          ),
-
-                          SizedBox(height: 100),
-
-                          if (rightDetect == false && hideRight == false)
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: Color(0xFF1f1d1e),
-                                minimumSize: Size(120, 66),
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(12),
-                                  ),
-                                ),
-                              ),
-                              onPressed: () {
-                                _changeUp("right", true);
-                                addToHistory(
-                                  'TRUCOU',
-                                  'TRUCO',
-                                  'ELES',
-                                  details: 'Eles pediram $words!',
-                                );
-                              },
-                              child: Text(words),
-                            ),
-
-                          if (rightDetect)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _correr("right");
-                                  },
-                                  child: Text('CORRER'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _changeUp("right", false);
-                                  },
-                                  child: Text('ACEITAR'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              trucoPlayer(
+                _increment,
+                _decrease,
+                _resetSide,
+                "right",
+                _rightCount,
+                _rightWins,
+                rightDetect,
+                hideRight,
+                _changeUp,
+                words,
+                _correr,
               ),
             ],
           ),

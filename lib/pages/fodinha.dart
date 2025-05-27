@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../logic/historico.dart';
 import '../logic/speedDial.dart';
+import '../logic/howTo.dart';
 
 class FodinhaPage extends StatefulWidget {
   const FodinhaPage({Key? key}) : super(key: key);
@@ -146,34 +147,7 @@ class _FodinhaPageState extends State<FodinhaPage> {
           ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Como jogar Fodinha?'),
-                    content: const Text(
-                      'Fodinha é um jogo similar ao Truco Paulista, a diferença é que '
-                      'não existe a possibilidade de pedir truco, e o jogo pode ser jogado com até 6 jogadores. '
-                      'O objetivo é adivinhar quantas rodadas cada jogador irá ganhar, '
-                      'se um jogador errar o número de rodadas em que ele iria ganhar, ele perde 1 de suas 5 vidas. '
-                      'Na primeira rodada, com 1 carta, os jogadores não poderão ver sua carta, e terão que adivinhar '
-                      'se ganham ou não a partir das cartas dos adversários. '
-                      'A partir da segunda rodada, cada jogador poderá ver suas cartas e determinar seu '
-                      'Número de rodadas em que acha que irá ganhar.',
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Fechar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
+            onPressed: () => FodinhaDialog(),
             tooltip: "Como jogar",
           ),
         ],

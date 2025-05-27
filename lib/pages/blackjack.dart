@@ -3,6 +3,8 @@ import 'package:lottie/lottie.dart';
 import '../logic/speedDial.dart';
 import '../logic/apostas.dart';
 import '../logic/historico.dart';
+import '../logic/player.dart';
+import '../logic/howTo.dart';
 
 class BlackJackPage extends StatefulWidget {
   const BlackJackPage({Key? key}) : super(key: key);
@@ -206,30 +208,7 @@ class _BlackJackPageState extends State<BlackJackPage> {
           ),
           IconButton(
             icon: const Icon(Icons.question_mark_outlined),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Como jogar Blackjack?'),
-                    content: const Text(
-                      'Blackjack é um jogo de cartas jogado com um baralho comum. '
-                      'O objetivo do jogo é chegar o mais próximo possível de 21 pontos, '
-                      'sem ultrapassar esse valor, se ultrapassado, o convidado perde.'
-                      'Na mesa, o jogador da casa irá distrubuir as cartas que serão reveladas ao longo do jogo.',
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Fechar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
+            onPressed: () => BlackJackDialog(),
             tooltip: "Como jogar",
           ),
         ],
@@ -238,87 +217,16 @@ class _BlackJackPageState extends State<BlackJackPage> {
         children: [
           Row(
             children: [
-              // você
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _increment("left"),
-                  onLongPress: () => _decrease("left"),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                      ),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_leftCount',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          Text(
-                            "Convidado",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Image(
-                            image: AssetImage('images/paus.png'),
-                            height: 150,
-                            width: 150,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '$_leftWins',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
-                            ),
-                          ),
-                          if (aceDetect)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("left", false);
-                                  },
-                                  child: Text('ACEITAR 1'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("left", true);
-                                  },
-                                  child: Text('ACEITAR 11'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              blackJackPlayer(
+                _increment,
+                _decrease,
+                "left",
+                _leftCount,
+                _leftWins,
+                aceDetect,
+                _aceVal,
               ),
 
-              // linha
               Column(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -337,84 +245,14 @@ class _BlackJackPageState extends State<BlackJackPage> {
                 ],
               ),
 
-              // casa
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _increment("right"),
-                  onLongPress: () => _decrease("right"),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: <Color>[Color(0xFF1f1d1e), Color(0xFF383838)],
-                      ),
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$_rightCount',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                          Text(
-                            "Dealer",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF534d36),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Image(
-                            image: AssetImage('images/copas.png'),
-                            height: 150,
-                            width: 150,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '$_rightWins',
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber,
-                            ),
-                          ),
-                          if (aceDetect)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("dir", false);
-                                  },
-                                  child: Text('ACEITAR 1'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _aceVal("dir", true);
-                                  },
-                                  child: Text('ACEITAR 11'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              blackJackPlayer(
+                _increment,
+                _decrease,
+                "right",
+                _rightCount,
+                _rightWins,
+                aceDetect,
+                _aceVal,
               ),
             ],
           ),
