@@ -1,4 +1,4 @@
-final default_path = 'images/fichas';
+final default_path = 'assets/images/fichas';
 
 class Ficha {
   String nome;
