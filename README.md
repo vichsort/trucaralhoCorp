@@ -95,3 +95,7 @@ Achou um bug? Tem uma ideia de novo jogo? Abra uma issue ou mande um pull reques
 ---
 
 > Lembre-se: **Trucaralho** - trucando teu baralho até na casa do carvalho! 🌳🃏
+>
+> Mudar o tamanho do número do "Valendo: ..." <br>
+> Probabilidade de não estourar o 21 no Blackjack <br>
+> main.dart igual o da Brenda (com Cards)
