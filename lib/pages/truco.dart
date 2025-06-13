@@ -116,10 +116,8 @@ class _TrucoPageState extends State<TrucoPage> {
 
       int currentIndex = wordss.indexOf(words);
 
-      // Se for trucado aumenta a aposta
       if (trucado) {
         if (currentIndex < wordss.length - 1) {
-          // mostra aceitar/correr no outro side
           if (side == "left") {
             rightDetect = true;
             leftDetect = false;
@@ -134,7 +132,6 @@ class _TrucoPageState extends State<TrucoPage> {
           up = ups[currentIndex + 1];
           words = wordss[currentIndex + 1];
         } else {
-          // não sobe depois de doze
           up = 12;
           words = wordss.last;
           rightDetect = false;
@@ -151,8 +148,6 @@ class _TrucoPageState extends State<TrucoPage> {
         return;
       }
 
-      // este loop refere quando se aceita o trucado
-      // dai escondemos os aceitar/correr para pode aumentar a aposta
       if (side == "left") {
         rightDetect = false;
         leftDetect = false;
@@ -179,12 +174,15 @@ class _TrucoPageState extends State<TrucoPage> {
   }
 
   void _correr(side) {
+    final ups = [1, 3, 6, 9, 12];
+    int run = (up > 1) ? ups[ups.indexOf(up) - 1] : 1;
+
     setState(() {
       if (side == "left") {
-        _rightCount += up;
+        _rightCount += run;
         leftDetect = false;
       } else {
-        _leftCount += up;
+        _leftCount += run;
         rightDetect = false;
       }
 
@@ -198,7 +196,7 @@ class _TrucoPageState extends State<TrucoPage> {
         'TRUCO',
         side == "left" ? "NÓS" : "ELES",
         details:
-            '${side == "left" ? "Nós corremos" : "Eles correram"} do trucado, dando $up pontos para ${side != "left" ? "nós" : "eles"}',
+            '${side == "left" ? "Nós corremos" : "Eles correram"} do trucado, dando $run pontos para ${side != "left" ? "nós" : "eles"}',
       );
       _microReset();
     });
